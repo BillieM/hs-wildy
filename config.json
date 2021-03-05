@@ -1,0 +1,11 @@
+{
+  "APIProperties": 80,
+  "WildernessBosses": {
+    "ChaosEle": 20,
+    "ChaosFan": 21,
+    "CrazyArch": 24,
+    "Scorpia": 42,
+    "Venenatis": 50,
+    "Vetion": 51
+  }
+}
