@@ -23,11 +23,10 @@ func main() {
 
 	db := dbConnect()
 
-	names := [10]string{"B0aty", "bob", "jimmy", "rico", "charli", "james", "timmy", "paul", "ella", "carly"}
-
-	for _, name := range names {
-		db.createPlayer(name)
-	}
+	db.createPlayer("bob", true)
+	db.playerDied("bob")
+	// db.createCategory("bob", "venenatis", 2, 300)
+	db.updateCategory("bob", "venenatis", 1, 307)
 
 	elapsed := time.Since(start)
 

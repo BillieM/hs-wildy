@@ -46,8 +46,47 @@ func dbConnect() *MyDB {
 	return &myDB
 }
 
-func (db *MyDB) createPlayer(name string) {
+func (db *MyDB) createPlayer(name string, alive bool) {
 	db.Create(&Player{
-		Name: name,
+		Name:  name,
+		Alive: alive,
 	})
+}
+
+func (db *MyDB) playerDied(name string) {
+	db.Model(&Player{}).Where("name = ?", name).Update("alive", false)
+}
+
+func (db *MyDB) getPlayerID(playerName string) uint {
+	row := db.Table("players").Where("name = ?", playerName).Select("id").Row()
+	var id uint
+	row.Scan(&id)
+	return id
+}
+
+func (db *MyDB) createCategory(playerName string, catName string, rank uint, score uint) {
+	playerID := db.getPlayerID(playerName)
+
+	db.Create(&Category{
+		Name:     catName,
+		Rank:     rank,
+		Score:    score,
+		PlayerID: playerID,
+	})
+}
+
+func (db *MyDB) updateCategory(playerName string, catName string, rank uint, score uint) {
+	playerID := db.getPlayerID(playerName)
+
+	db.Table("categories").Where("player_id = ? AND name = ?", playerID, catName).Updates(Category{
+		Rank:  rank,
+		Score: score,
+	})
+
+}
+
+func (db *MyDB) createOrUpdateCategory(playerName string, catName string, rank uint, score uint) {
+	/*
+		tries to update category, failing that creates a new category
+	*/
 }

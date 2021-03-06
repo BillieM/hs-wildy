@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "hs-wildy",
+            "database": "\\\\wsl$\\Ubuntu\\home\\billie\\Documents\\hs-wildy\\app.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
