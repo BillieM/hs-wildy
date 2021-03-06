@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"time"
 )
@@ -12,14 +11,22 @@ func main() {
 
 	// fmt.Println(scrapeURL())
 
-	players := [2]string{"Lamui", "LarryChamp"}
+	// players := [2]string{"Lamui", "LarryChamp"}
 
-	for _, player := range players {
-		p, err := callAPI(player)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(p)
+	// for _, player := range players {
+	// 	p, err := callAPI(player)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	fmt.Println(p)
+	// }
+
+	db := dbConnect()
+
+	names := [10]string{"B0aty", "bob", "jimmy", "rico", "charli", "james", "timmy", "paul", "ella", "carly"}
+
+	for _, name := range names {
+		db.createPlayer(name)
 	}
 
 	elapsed := time.Since(start)
@@ -43,4 +50,6 @@ need some intelligent way of splitting load between the two at sensible interval
 likely going to be storing data in a db rather than pickled files
 
 usage of structs
+
+for each boss for each player, we store a last checked time
 */
