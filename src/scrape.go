@@ -9,24 +9,83 @@ import (
 	"github.com/gocolly/colly"
 )
 
-// HighscoreLine stores information about a particular player on a particular hiscore page
-type HighscoreLine struct {
-	Rank  int
+// HighscoreCategory stores information about a particular category on the hiscores, it contains highscore pages
+type HighscoreCategory struct {
 	Name  string
-	Alive bool
-	Score int
+	Pages []*HighscorePage
 }
 
-func scrapeURL() (map[string]HighscoreLine, bool) {
+// HighscorePage stores information about a particular page of a category on the hiscores, It contains highscore lines
+type HighscorePage struct {
+	Name  string
+	Page  int
+	Lines []*HighscoreLine
+}
 
-	highscoreLines := make(map[string]HighscoreLine)
+// HighscoreLine stores information about a particular player on a particular hiscore page
+type HighscoreLine struct {
+	Rank     int
+	Name     string
+	Alive    bool
+	Score    int
+	Category string
+}
+
+func scrapeAll() []*HighscoreCategory {
+	config := readConfig()
+	bosses := config.WildernessBosses
+
+	var allCategories []*HighscoreCategory
+
+	for bossName := range bosses {
+		highscoreCat := scrapeCategory(bossName)
+		allCategories = append(allCategories, highscoreCat)
+	}
+
+	return allCategories
+}
+
+func scrapeCategory(bossName string) *HighscoreCategory {
+
+	highscoreCat := HighscoreCategory{
+		Name: bossName,
+	}
+
+	pageNum := 1
+	morePages := true
+
+	for morePages {
+		var highscorePage *HighscorePage
+		highscorePage, morePages = scrapePage(bossName, pageNum)
+		highscoreCat.Pages = append(highscoreCat.Pages, highscorePage)
+		pageNum++
+	}
+
+	return &highscoreCat
+}
+
+func scrapePage(bossName string, pageNum int) (*HighscorePage, bool) {
+
+	config := readConfig()
+
+	tableID := config.WildernessBosses[bossName]
+
+	url := fmt.Sprintf("https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=%v&page=%v", tableID, pageNum)
+
+	// "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=20#headerHiscores"
+
+	highscorePage := HighscorePage{
+		Name: bossName,
+		Page: pageNum,
+	}
 	var isNextPage bool
 
 	c := colly.NewCollector()
 
 	c.OnHTML("tr.personal-hiscores__row", func(e *colly.HTMLElement) {
 		playerLine := parseLine(e)
-		highscoreLines[playerLine.Name] = *playerLine
+		playerLine.Category = bossName
+		highscorePage.Lines = append(highscorePage.Lines, playerLine)
 	})
 
 	c.OnHTML("a.personal-hiscores__pagination-arrow--down", func(e *colly.HTMLElement) {
@@ -37,9 +96,9 @@ func scrapeURL() (map[string]HighscoreLine, bool) {
 		fmt.Println("visiting", r.URL.String())
 	})
 
-	c.Visit("https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=20#headerHiscores")
+	c.Visit(url)
 
-	return highscoreLines, isNextPage
+	return &highscorePage, isNextPage
 
 }
 
@@ -87,8 +146,7 @@ func parseLine(e *colly.HTMLElement) *HighscoreLine {
 		Name:  name,
 		Rank:  rank,
 		Score: score,
-		Alive: alive,
-	}
+		Alive: alive}
 
 	return &l
 

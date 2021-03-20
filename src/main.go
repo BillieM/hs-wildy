@@ -1,9 +1,31 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"time"
 )
+
+func createAll(db *MyDB) {
+	allCategories := scrapeAll()
+
+	var toTweet []*HighscoreLine
+
+	for _, category := range allCategories {
+		for _, page := range category.Pages {
+			for _, line := range page.Lines {
+				shouldTweet := db.highscoreLineCreateOrUpdate(line)
+				if shouldTweet {
+					toTweet = append(toTweet, line)
+				}
+			}
+		}
+	}
+
+	for _, tweet := range toTweet {
+		fmt.Println(tweet)
+	}
+}
 
 func main() {
 
@@ -22,11 +44,14 @@ func main() {
 	// }
 
 	db := dbConnect()
+	_ = db
 
-	db.createPlayer("bob", true)
-	db.playerDied("bob")
-	// db.createCategory("bob", "venenatis", 2, 300)
-	db.updateCategory("bob", "venenatis", 1, 307)
+	createAll(db)
+
+	// db.createPlayer("bob", true)
+	// db.playerDied("bob")
+	// // db.createCategory("bob", "venenatis", 2, 300)
+	// db.updateCategory("bob", "venenatis", 1, 307)
 
 	elapsed := time.Since(start)
 

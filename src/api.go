@@ -62,7 +62,7 @@ func callAPI(playerName string) (*APIPlayer, error) {
 
 	if len(responseArr) != config.APIProperties {
 
-		alertMsg := fmt.Sprintf("Incorrect response array length -> %s", len(responseArr))
+		alertMsg := fmt.Sprintf("Incorrect response array length -> %v", len(responseArr))
 
 		alertMe(alertMsg)
 
