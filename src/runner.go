@@ -30,7 +30,7 @@ func configureRunner(db *MyDB) *Runner {
 
 	runner := Runner{
 		Categories:           categories,
-		CurrentCategoryIndex: 1,
+		CurrentCategoryIndex: 0,
 		CurrentPage:          1,
 		Database:             db,
 	}
@@ -60,8 +60,7 @@ func (runner *Runner) processPage(highscorePage *HighscorePage) {
 
 		if changeData.PlayerAlive {
 			if changeData.NewCategory {
-				timeSinceLastCheck := time.Since(changeData.LastUpdate)
-				msg := fmt.Sprintf("%s has entered the highscores for %s. their kc is %v. Time since this player was last checked: %s", line.Name, line.Category, line.Score, timeSinceLastCheck)
+				msg := fmt.Sprintf("%s has entered the highscores for %s. their kc is %v.", line.Name, line.Category, line.Score)
 				toAlert = append(toAlert, msg)
 			} else if changeData.ScoreChanged {
 				timeSinceLastCheck := time.Since(changeData.LastUpdate)
