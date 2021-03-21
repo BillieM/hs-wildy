@@ -7,5 +7,7 @@
     "Scorpia": 42,
     "Venenatis": 50,
     "Vetion": 51
-  }
+  },
+  "SecondsBetweenScrapes": 2,
+  "SecondsBetweenApi": 1
 }

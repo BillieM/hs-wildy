@@ -93,7 +93,7 @@ func scrapePage(bossName string, pageNum int) (*HighscorePage, bool) {
 	})
 
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("visiting", r.URL.String())
+		fmt.Printf("visiting %s page %v\n", bossName, pageNum)
 	})
 
 	c.Visit(url)

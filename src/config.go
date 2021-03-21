@@ -8,8 +8,10 @@ import (
 
 // Config struct stores configuration properties for application
 type Config struct {
-	APIProperties    int
-	WildernessBosses map[string]int
+	APIProperties         int
+	WildernessBosses      map[string]int
+	SecondsBetweenScrapes float64
+	SecondsBetweenApi     float64
 }
 
 func readConfig() *Config {

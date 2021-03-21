@@ -32,6 +32,15 @@ type Category struct {
 	Updated  time.Time `gorm:"autoUpdateTime"`
 }
 
+// ScrapeData struct used to determine whether or not to tweet, and what to tweet
+type ChangeData struct {
+	NewCategory   bool
+	ScoreChanged  bool
+	PreviousScore uint
+	LastUpdate    time.Time
+	PlayerAlive   bool
+}
+
 func dbConnect() *MyDB {
 	db, err := gorm.Open(sqlite.Open("../app.db"), &gorm.Config{})
 	if err != nil {
@@ -89,9 +98,10 @@ func (db *MyDB) updateCategory(playerName string, catName string, playerRank uin
 
 }
 
-func (db *MyDB) createOrUpdateCategory(playerName string, catName string, playerRank uint, playerScore uint) bool {
+func (db *MyDB) createOrUpdateCategory(playerName string, catName string, playerRank uint, playerScore uint) *ChangeData {
 
 	var category Category
+	var changeData ChangeData
 
 	newCategory := false
 	scoreChanged := false
@@ -102,6 +112,11 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 
 	newCategory = errors.Is(catDB.Error, gorm.ErrRecordNotFound)
 
+	row := db.Table("categories").Where("name = ? AND player_id = ?", catName, playerID).Select("score", "updated").Row()
+	var score uint
+	var updated time.Time
+	row.Scan(&score, &updated)
+
 	if newCategory {
 		db.createCategory(
 			playerName,
@@ -111,23 +126,23 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 		)
 	} else {
 
-		row := db.Table("categories").Where("name = ? AND player_id = ?", catName, playerID).Select("score").Row()
-		var score uint
-		row.Scan(&score)
-
 		if score != playerScore {
 			scoreChanged = true
 		}
 		db.updateCategory(playerName, catName, playerRank, playerScore)
 	}
 
-	return newCategory || scoreChanged
+	changeData.ScoreChanged = scoreChanged
+	changeData.NewCategory = newCategory
+	changeData.PreviousScore = score
+	changeData.LastUpdate = updated
+
+	return &changeData
 }
 
-func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) bool {
+func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) *ChangeData {
 
 	newPlayer := false
-	scoreChanged := false
 
 	playerName := highscoreLine.Name
 	playerCatRank := highscoreLine.Rank
@@ -160,20 +175,14 @@ func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) bool {
 		}
 	}
 
-	scoreChanged = db.createOrUpdateCategory(
+	changeData := db.createOrUpdateCategory(
 		playerName,
 		lineCatName,
 		uint(playerCatRank),
 		uint(playerCatScore),
 	)
 
-	return scoreChanged && playerIsAlive
+	changeData.PlayerAlive = playerIsAlive
+
+	return changeData
 }
-
-/*
-when dealing with api calls, only need to worry about new categories/ category updates, players won't be new
-	also need to do a check for whether or not a player has died if we find an update before tweeting
-
-when dealing with scraping, need to check if player exitsts
-
-*/

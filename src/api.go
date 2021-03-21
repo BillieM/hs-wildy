@@ -64,9 +64,9 @@ func callAPI(playerName string) (*APIPlayer, error) {
 
 		alertMsg := fmt.Sprintf("Incorrect response array length -> %v", len(responseArr))
 
-		alertMe(alertMsg)
+		sendAlert(alertMsg)
 
-		return &p, errors.New("Incorrect Response Array Length")
+		return &p, errors.New("incorrect array response length")
 	}
 
 	for key, bossIndex := range config.WildernessBosses {
