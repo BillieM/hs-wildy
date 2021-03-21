@@ -122,7 +122,6 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 	}
 
 	return newCategory || scoreChanged
-
 }
 
 func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) bool {
