@@ -42,12 +42,17 @@ func main() {
 
 	for {
 		//
-		timeSincelastScrape := time.Since(runner.LastScrapeTime).Seconds()
+		timeSinceLastScrape := time.Since(runner.LastScrapeTime).Seconds()
+		timeSinceLastApiCall := time.Since(runner.LastApiCallTime).Seconds()
 
-		if !runner.Scraping && timeSincelastScrape >= config.SecondsBetweenScrapes {
+		if !runner.Scraping && timeSinceLastScrape >= config.SecondsBetweenScrapes {
 			runner.performScrape()
 		}
 
-		time.Sleep(1 * time.Second)
+		if !runner.CallingAPI && timeSinceLastApiCall >= config.SecondsBetweenApiCalls {
+			runner.performApiCall()
+		}
+
+		time.Sleep(250 * time.Millisecond)
 	}
 }

@@ -8,6 +8,6 @@
     "Venenatis": 50,
     "Vetion": 51
   },
-  "SecondsBetweenScrapes": 5,
-  "SecondsBetweenApi": 1
+  "SecondsBetweenScrapes": 7.5,
+  "SecondsBetweenApiCalls": 1
 }

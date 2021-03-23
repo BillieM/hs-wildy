@@ -16,6 +16,8 @@ type Runner struct {
 	CurrentPage          int
 	Database             *MyDB
 	Scraping             bool
+	CallingAPI           bool
+	LastApiCallTime      time.Time
 	LastScrapeTime       time.Time
 }
 
@@ -44,6 +46,9 @@ func (runner *Runner) performScrape() {
 	bossName := runner.Categories[runner.CurrentCategoryIndex]
 
 	highscorePage, morePages := scrapePage(bossName, runner.CurrentPage)
+
+	runner.Scraping = false
+	runner.LastScrapeTime = time.Now()
 
 	runner.postScrapeUpdates(morePages)
 
@@ -76,8 +81,6 @@ func (runner *Runner) processPage(highscorePage *HighscorePage) {
 }
 
 func (runner *Runner) postScrapeUpdates(morePages bool) {
-	runner.Scraping = false
-	runner.LastScrapeTime = time.Now()
 
 	if morePages {
 		runner.CurrentPage++
@@ -89,4 +92,14 @@ func (runner *Runner) postScrapeUpdates(morePages bool) {
 			runner.CurrentCategoryIndex++
 		}
 	}
+}
+
+func (runner *Runner) performApiCall() {
+	runner.CallingAPI = true
+}
+
+func (runner *Runner) postAPICallUpdates() {}
+
+func (runner *Runner) processAPICall() {
+
 }
