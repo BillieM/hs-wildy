@@ -31,39 +31,6 @@ type HighscoreLine struct {
 	Category string
 }
 
-func scrapeAll() []*HighscoreCategory {
-	config := readConfig()
-	bosses := config.WildernessBosses
-
-	var allCategories []*HighscoreCategory
-
-	for bossName := range bosses {
-		highscoreCat := scrapeCategory(bossName)
-		allCategories = append(allCategories, highscoreCat)
-	}
-
-	return allCategories
-}
-
-func scrapeCategory(bossName string) *HighscoreCategory {
-
-	highscoreCat := HighscoreCategory{
-		Name: bossName,
-	}
-
-	pageNum := 1
-	morePages := true
-
-	for morePages {
-		var highscorePage *HighscorePage
-		highscorePage, morePages = scrapePage(bossName, pageNum)
-		highscoreCat.Pages = append(highscoreCat.Pages, highscorePage)
-		pageNum++
-	}
-
-	return &highscoreCat
-}
-
 func scrapePage(bossName string, pageNum int) (*HighscorePage, bool) {
 
 	config := readConfig()

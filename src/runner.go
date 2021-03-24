@@ -21,14 +21,17 @@ type Runner struct {
 	LastScrapeTime       time.Time
 }
 
-func configureRunner(db *MyDB) *Runner {
+func configureRunner(db *MyDB) (*Runner, error) {
+
 	config := readConfig()
 
 	var categories []string
 
-	for k := range config.WildernessBosses {
-		categories = append(categories, k)
+	for category := range config.WildernessBosses {
+		categories = append(categories, category)
 	}
+
+	fmt.Println(categories)
 
 	runner := Runner{
 		Categories:           categories,
@@ -37,8 +40,12 @@ func configureRunner(db *MyDB) *Runner {
 		Database:             db,
 	}
 
-	return &runner
+	err := runner.configureConfigTableIDs()
+
+	return &runner, err
 }
+
+func (runner *Runner) configureConfigTableIDs() error { return nil }
 
 func (runner *Runner) performScrape() {
 	runner.Scraping = true
@@ -94,12 +101,25 @@ func (runner *Runner) postScrapeUpdates(morePages bool) {
 	}
 }
 
+func (runner *Runner) getNextApiCallName() string {
+	// get the oldest updated category where the player is alive
+	// return the players name
+	name := runner.Database.getNextApiCallName()
+	return name
+}
+
 func (runner *Runner) performApiCall() {
 	runner.CallingAPI = true
+	name := runner.getNextApiCallName()
+	fmt.Println("api call name -> ", name)
+
+	runner.postAPICallUpdates()
+
+	runner.processAPICall()
 }
 
 func (runner *Runner) postAPICallUpdates() {}
 
 func (runner *Runner) processAPICall() {
-
+	// going to take the api call return struct as argument
 }

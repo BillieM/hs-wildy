@@ -186,3 +186,10 @@ func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) *Chang
 
 	return changeData
 }
+
+func (db *MyDB) getNextApiCallName() string {
+
+	name := ""
+
+	return name
+}
