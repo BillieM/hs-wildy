@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"time"
 )
 
@@ -9,24 +11,26 @@ func main() {
 	config := readConfig()
 
 	db := dbConnect()
-	_ = db
 
 	runner, err := configureRunner(db)
 
 	if err != nil {
-		// exit here
+		sendErrorAlert(fmt.Sprintf("runner configuration failed -> %v", err))
+		os.Exit(0)
 	}
 
 	for {
-		//
+
 		timeSinceLastScrape := time.Since(runner.LastScrapeTime).Seconds()
 		timeSinceLastApiCall := time.Since(runner.LastApiCallTime).Seconds()
 
-		if !runner.Scraping && timeSinceLastScrape >= config.SecondsBetweenScrapes {
-			runner.performScrape()
+		if timeSinceLastScrape >= config.SecondsBetweenScrapes {
+			if true == false {
+				runner.performScrape()
+			}
 		}
 
-		if !runner.CallingAPI && timeSinceLastApiCall >= config.SecondsBetweenApiCalls {
+		if timeSinceLastApiCall >= config.SecondsBetweenApiCalls {
 			runner.performApiCall()
 		}
 

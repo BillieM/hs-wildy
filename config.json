@@ -1,13 +1,15 @@
 {
-  "APIProperties": 80,
+  "APIProperties": 81,
+  "ScrapeProperties": 80,
   "WildernessBosses": {
-    "ChaosEle": null,
-    "ChaosFan": null,
-    "CrazyArch": null,
-    "Scorpia": null,
-    "Venenatis": null,
-    "Vetion": null
+    "Chaos Elemental": 20,
+    "Chaos Fanatic": 21,
+    "Crazy Archaeologist": 24,
+    "Scorpia": 42,
+    "Venenatis": 51,
+    "Vet'ion": 52
   },
   "SecondsBetweenScrapes": 7.5,
-  "SecondsBetweenApiCalls": 1
+  "SecondsBetweenApiCalls": 1,
+  "NumSkills": 23
 }

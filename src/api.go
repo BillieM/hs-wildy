@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 )
@@ -35,12 +35,14 @@ func callAPI(playerName string) (*APIPlayer, error) {
 		Bosses: make(map[string]APICategory),
 	}
 
-	reqURL := "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws?player=" + playerName
+	spacesPlayerName := strings.ReplaceAll(playerName, string(rune(160)), " ")
+	encodedPlayerName := url.QueryEscape(spacesPlayerName)
+	reqURL := "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws?player=" + encodedPlayerName
 
 	resp, err := http.Get(reqURL)
 
 	if err != nil {
-		log.Fatal(err)
+		return &p, err
 	}
 
 	defer resp.Body.Close()
@@ -48,7 +50,7 @@ func callAPI(playerName string) (*APIPlayer, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		log.Fatal(err)
+		return &p, err
 	}
 
 	bodyS := fmt.Sprintf("%s", body)
@@ -61,24 +63,20 @@ func callAPI(playerName string) (*APIPlayer, error) {
 	}
 
 	if len(responseArr) != config.APIProperties {
-
-		alertMsg := fmt.Sprintf("Incorrect response array length -> %v", len(responseArr))
-
-		sendAlert(alertMsg)
-
-		return &p, errors.New("incorrect array response length")
+		configureConfig()
+		return &p, errors.New("incorrect number of api categories")
 	}
 
 	for key, bossIndex := range config.WildernessBosses {
-		bossLine := responseArr[bossIndex]
+		bossLine := responseArr[bossIndex+config.NumSkills+1]
 		bossLineArr := strings.Split(bossLine, ",")
 		rank, err := strconv.Atoi(bossLineArr[0])
 		if err != nil {
-			log.Fatal(err)
+			return &p, err
 		}
 		score, err := strconv.Atoi(bossLineArr[1])
 		if err != nil {
-			log.Fatal(err)
+			return &p, err
 		}
 		category := APICategory{
 			Name:  key,

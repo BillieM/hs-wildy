@@ -189,7 +189,11 @@ func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) *Chang
 
 func (db *MyDB) getNextApiCallName() string {
 
-	name := ""
+	var player Player
+	var name string
+
+	qry := db.Joins("JOIN categories ON categories.player_id = players.id AND players.alive = ?", true).Order("updated").First(&player).Select("players.name").Row()
+	qry.Scan(&name)
 
 	return name
 }

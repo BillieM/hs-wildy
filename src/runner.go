@@ -5,18 +5,11 @@ import (
 	"time"
 )
 
-/*
-when we scrape a page, we get back a page obj, and a bool returning if there's more pages for that
-
-*/
-
 type Runner struct {
 	Categories           []string
 	CurrentCategoryIndex int
 	CurrentPage          int
 	Database             *MyDB
-	Scraping             bool
-	CallingAPI           bool
 	LastApiCallTime      time.Time
 	LastScrapeTime       time.Time
 }
@@ -31,8 +24,6 @@ func configureRunner(db *MyDB) (*Runner, error) {
 		categories = append(categories, category)
 	}
 
-	fmt.Println(categories)
-
 	runner := Runner{
 		Categories:           categories,
 		CurrentCategoryIndex: 0,
@@ -40,26 +31,25 @@ func configureRunner(db *MyDB) (*Runner, error) {
 		Database:             db,
 	}
 
-	err := runner.configureConfigTableIDs()
+	err := configureConfig()
 
 	return &runner, err
 }
 
-func (runner *Runner) configureConfigTableIDs() error { return nil }
-
 func (runner *Runner) performScrape() {
-	runner.Scraping = true
 
 	bossName := runner.Categories[runner.CurrentCategoryIndex]
 
-	highscorePage, morePages := scrapePage(bossName, runner.CurrentPage)
+	highscorePage, err := scrapePage(bossName, runner.CurrentPage)
 
-	runner.Scraping = false
 	runner.LastScrapeTime = time.Now()
 
-	runner.postScrapeUpdates(morePages)
-
-	runner.processPage(highscorePage)
+	if err != nil {
+		sendErrorAlert(fmt.Sprintf("scrape failed -> %v", err))
+	} else {
+		runner.postScrapeUpdates(highscorePage.MorePages)
+		runner.processPage(highscorePage)
+	}
 
 }
 
@@ -83,7 +73,7 @@ func (runner *Runner) processPage(highscorePage *HighscorePage) {
 	}
 
 	for _, msg := range toAlert {
-		sendAlert(msg)
+		sendUpdateAlert(msg)
 	}
 }
 
@@ -101,25 +91,49 @@ func (runner *Runner) postScrapeUpdates(morePages bool) {
 	}
 }
 
-func (runner *Runner) getNextApiCallName() string {
-	// get the oldest updated category where the player is alive
-	// return the players name
-	name := runner.Database.getNextApiCallName()
-	return name
-}
-
 func (runner *Runner) performApiCall() {
-	runner.CallingAPI = true
-	name := runner.getNextApiCallName()
-	fmt.Println("api call name -> ", name)
+	playerName := runner.Database.getNextApiCallName()
 
-	runner.postAPICallUpdates()
+	fmt.Println("api call name -> ", playerName)
 
-	runner.processAPICall()
+	apiData, err := callAPI(playerName)
+
+	fmt.Println(apiData)
+
+	runner.LastApiCallTime = time.Now()
+
+	if err != nil {
+		sendErrorAlert(err.Error())
+	} else {
+		runner.processAPICall(apiData)
+	}
 }
 
-func (runner *Runner) postAPICallUpdates() {}
-
-func (runner *Runner) processAPICall() {
+func (runner *Runner) processAPICall(apiData *APIPlayer) {
 	// going to take the api call return struct as argument
+
+	// if there is a change, we need to perform a scrape to check if the player is alive
+	// 	check the hs page based on players rank from api call
+
+	var bossName string
+	var rank int
+
+	for k, v := range apiData.Bosses {
+		bossName = k
+		rank = v.Rank
+		if rank > 0 {
+			break
+		}
+	}
+
+	isAlive, err := scrapeIsPlayerAlive(apiData.Name, bossName, rank)
+
+	if err != nil {
+		sendErrorAlert(err.Error())
+	}
+
+	if isAlive {
+		fmt.Println("alive xx")
+	}
+
 }
