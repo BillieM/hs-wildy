@@ -13,8 +13,9 @@ import (
 
 // APIPlayer contains information about all relevant categories for a player
 type APIPlayer struct {
-	Name   string
-	Bosses map[string]APICategory
+	Name       string
+	PlayerGone bool
+	Bosses     map[string]APICategory
 }
 
 // APICategory contains information for a particular category for a player (e.g. chaos ele)
@@ -45,8 +46,9 @@ func callAPI(playerName string) (*APIPlayer, error) {
 		return &p, err
 	}
 
-	fmt.Println(resp)
-	fmt.Println(resp.StatusCode)
+	if resp.StatusCode == 404 {
+		p.PlayerGone = true
+	}
 
 	defer resp.Body.Close()
 

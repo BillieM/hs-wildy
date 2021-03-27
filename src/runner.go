@@ -100,6 +100,10 @@ func (runner *Runner) performApiCall() {
 
 func (runner *Runner) processAPICall(apiData *APIPlayer) {
 
+	if apiData.PlayerGone {
+		runner.Database.playerDied(apiData.Name)
+	}
+
 	apiChanges := runner.Database.apiDataCreateOrUpdate(apiData)
 
 	if len(apiChanges) > 0 {
