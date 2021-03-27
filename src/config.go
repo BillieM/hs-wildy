@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -37,8 +36,6 @@ func configureConfig() error {
 	config.WildernessBosses = highscoreCatsInfo.CategoryIDs
 	config.APIProperties = highscoreCatsInfo.NumHighscoreCategories + 1
 	config.ScrapeProperties = highscoreCatsInfo.NumHighscoreCategories
-
-	fmt.Println(highscoreCatsInfo.NumHighscoreCategories)
 
 	err = writeConfig(config)
 

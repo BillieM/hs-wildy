@@ -76,7 +76,9 @@ func scrapeCategoriesInfo(categories []string) (*HighscoreCategoriesInfo, error)
 	})
 
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("scraping table ids")
+		reqString := "scraping -> table ids"
+		fmt.Println(reqString)
+		writeLineToRequestLog(reqString)
 	})
 
 	c.OnError(func(_ *colly.Response, reqErr error) {
@@ -202,7 +204,6 @@ func scrapeIsPlayerAlive(apiData *APIPlayer) (bool, error) {
 	}
 
 	pageToScrape := int(math.Ceil(float64(catRank) / 25))
-	fmt.Println("page to scrape: ", pageToScrape)
 
 	highscorePage, err := scrapePage(catName, pageToScrape)
 
