@@ -2,9 +2,12 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
+	"os"
 	"time"
 
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -49,7 +52,21 @@ type HSChange struct {
 }
 
 func dbConnect() *MyDB {
-	db, err := gorm.Open(sqlite.Open("../app.db"), &gorm.Config{})
+
+	var db *gorm.DB
+	var err error
+
+	HS_WILDY := os.Getenv("HSWILDY")
+
+	if HS_WILDY == "LIVE" {
+		fmt.Println("connecting to live postgresql db")
+		dsn := "host=localhost user=billie password=funorb4299 dbname=hswildy"
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	} else {
+		fmt.Println("connecting to dev sqlite db")
+		db, err = gorm.Open(sqlite.Open("../app.db"), &gorm.Config{})
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}
