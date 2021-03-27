@@ -30,9 +30,6 @@ func callAPI(playerName string) (*APIPlayer, error) {
 
 	var responseArr []string
 
-	fmt.Println(responseArr)
-	fmt.Println(len(responseArr))
-
 	p := APIPlayer{
 		Name:   playerName,
 		Bosses: make(map[string]APICategory),
@@ -64,6 +61,10 @@ func callAPI(playerName string) (*APIPlayer, error) {
 		lineText := scanner.Text()
 		responseArr = append(responseArr, lineText)
 	}
+
+	fmt.Println(resp)
+	fmt.Println(responseArr)
+	fmt.Println(len(responseArr))
 
 	if len(responseArr) != config.APIProperties {
 		configureConfig()
