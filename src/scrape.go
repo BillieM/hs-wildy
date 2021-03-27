@@ -126,7 +126,9 @@ func scrapePage(bossName string, pageNum int) (*HighscorePage, error) {
 	})
 
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Printf("scraping %s page %v\n", bossName, pageNum)
+		reqString := fmt.Sprintf("scraping %s page %v", bossName, pageNum)
+		fmt.Println(reqString)
+		writeLineToRequestLog(reqString)
 	})
 
 	c.OnError(func(_ *colly.Response, reqErr error) {

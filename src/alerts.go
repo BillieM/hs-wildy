@@ -38,8 +38,8 @@ func sendErrorAlert(msg string) {
 	writeLineToErrorLog(msg)
 }
 
-func writeLineToSuccessLog(msg string) {
-	f, err := os.OpenFile("../updates.log",
+func writeLineToLog(logName string, msg string) {
+	f, err := os.OpenFile(fmt.Sprintf("../%s.log", logName),
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
@@ -50,14 +50,14 @@ func writeLineToSuccessLog(msg string) {
 	}
 }
 
+func writeLineToRequestLog(msg string) {
+	writeLineToLog("requests", msg)
+}
+
+func writeLineToSuccessLog(msg string) {
+	writeLineToLog("updates", msg)
+}
+
 func writeLineToErrorLog(msg string) {
-	f, err := os.OpenFile("../errors.log",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Println(err)
-	}
-	defer f.Close()
-	if _, err := f.WriteString(fmt.Sprintf("[%s] %s\n", time.Now().Format("02/01/2006 15:04:05"), msg)); err != nil {
-		log.Println(err)
-	}
+	writeLineToLog("errors", msg)
 }

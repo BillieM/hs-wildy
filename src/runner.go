@@ -82,7 +82,10 @@ func (runner *Runner) postScrapeUpdates(morePages bool) {
 func (runner *Runner) performApiCall() {
 	playerName := runner.Database.getNextApiCallName()
 
-	fmt.Println("api call name -> ", playerName)
+	reqString := fmt.Sprintf("calling api -> %s", playerName)
+
+	fmt.Println(reqString)
+	writeLineToRequestLog(reqString)
 
 	apiData, err := callAPI(playerName)
 
