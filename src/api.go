@@ -30,6 +30,9 @@ func callAPI(playerName string) (*APIPlayer, error) {
 
 	var responseArr []string
 
+	fmt.Println(responseArr)
+	fmt.Println(len(responseArr))
+
 	p := APIPlayer{
 		Name:   playerName,
 		Bosses: make(map[string]APICategory),
