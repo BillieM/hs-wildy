@@ -146,9 +146,6 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 	var updated time.Time
 	row.Scan(&score, &updated)
 
-	fmt.Println(row)
-	fmt.Println(score, playerScore)
-
 	if newCategory {
 		db.createCategory(
 			playerName,
@@ -162,6 +159,7 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 			scoreChanged = true
 			writeLineToOtherLog(fmt.Sprintf("db score: %v, new score: %v, player name: %s, cat name: %s", score, playerScore, playerName, catName))
 		}
+
 		db.updateCategory(playerName, catName, playerRank, playerScore)
 	}
 
