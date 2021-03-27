@@ -55,26 +55,14 @@ func (runner *Runner) performScrape() {
 
 func (runner *Runner) processPage(highscorePage *HighscorePage) {
 
-	var toAlert []string
-
 	for _, line := range highscorePage.Lines {
-		changeData := runner.Database.highscoreLineCreateOrUpdate(line)
+		hsChange := runner.Database.highscoreLineCreateOrUpdate(line)
 
-		if changeData.PlayerAlive {
-			if changeData.NewCategory {
-				msg := fmt.Sprintf("%s has entered the highscores for %s. their kc is %v.", line.Name, line.Category, line.Score)
-				toAlert = append(toAlert, msg)
-			} else if changeData.ScoreChanged {
-				timeSinceLastCheck := time.Since(changeData.LastUpdate)
-				msg := fmt.Sprintf("%s's KC has changed for %s. their kc has increased from %v to %v. Time since this player was last checked: %s", line.Name, line.Category, changeData.PreviousScore, line.Score, timeSinceLastCheck)
-				toAlert = append(toAlert, msg)
-			}
+		if hsChange.PlayerAlive {
+			checkCategoryAlert(hsChange.Change)
 		}
 	}
 
-	for _, msg := range toAlert {
-		sendUpdateAlert(msg)
-	}
 }
 
 func (runner *Runner) postScrapeUpdates(morePages bool) {
@@ -98,8 +86,6 @@ func (runner *Runner) performApiCall() {
 
 	apiData, err := callAPI(playerName)
 
-	fmt.Println(apiData)
-
 	runner.LastApiCallTime = time.Now()
 
 	if err != nil {
@@ -110,30 +96,23 @@ func (runner *Runner) performApiCall() {
 }
 
 func (runner *Runner) processAPICall(apiData *APIPlayer) {
-	// going to take the api call return struct as argument
 
-	// if there is a change, we need to perform a scrape to check if the player is alive
-	// 	check the hs page based on players rank from api call
+	apiChanges := runner.Database.apiDataCreateOrUpdate(apiData)
 
-	var bossName string
-	var rank int
+	if len(apiChanges) > 0 {
 
-	for k, v := range apiData.Bosses {
-		bossName = k
-		rank = v.Rank
-		if rank > 0 {
-			break
+		isAlive, err := scrapeIsPlayerAlive(apiData)
+
+		if err != nil {
+			sendErrorAlert(err.Error())
+		} else {
+			runner.LastScrapeTime = time.Now()
+
+			if isAlive {
+				for _, catChange := range apiChanges {
+					checkCategoryAlert(catChange)
+				}
+			}
 		}
 	}
-
-	isAlive, err := scrapeIsPlayerAlive(apiData.Name, bossName, rank)
-
-	if err != nil {
-		sendErrorAlert(err.Error())
-	}
-
-	if isAlive {
-		fmt.Println("alive xx")
-	}
-
 }

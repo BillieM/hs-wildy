@@ -33,12 +33,19 @@ type Category struct {
 }
 
 // ScrapeData struct used to determine whether or not to tweet, and what to tweet
-type ChangeData struct {
+type CatChange struct {
 	NewCategory   bool
 	ScoreChanged  bool
+	PlayerName    string
+	CategoryName  string
 	PreviousScore uint
+	NewScore      int
 	LastUpdate    time.Time
-	PlayerAlive   bool
+}
+
+type HSChange struct {
+	Change      *CatChange
+	PlayerAlive bool
 }
 
 func dbConnect() *MyDB {
@@ -98,10 +105,10 @@ func (db *MyDB) updateCategory(playerName string, catName string, playerRank uin
 
 }
 
-func (db *MyDB) createOrUpdateCategory(playerName string, catName string, playerRank uint, playerScore uint) *ChangeData {
+func (db *MyDB) createOrUpdateCategory(playerName string, catName string, playerRank uint, playerScore uint) *CatChange {
 
 	var category Category
-	var changeData ChangeData
+	var changeData CatChange
 
 	newCategory := false
 	scoreChanged := false
@@ -134,13 +141,16 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 
 	changeData.ScoreChanged = scoreChanged
 	changeData.NewCategory = newCategory
+	changeData.PlayerName = playerName
+	changeData.CategoryName = catName
 	changeData.PreviousScore = score
+	changeData.NewScore = int(playerScore)
 	changeData.LastUpdate = updated
 
 	return &changeData
 }
 
-func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) *ChangeData {
+func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) *HSChange {
 
 	newPlayer := false
 
@@ -175,16 +185,34 @@ func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) *Chang
 		}
 	}
 
-	changeData := db.createOrUpdateCategory(
+	catChange := db.createOrUpdateCategory(
 		playerName,
 		lineCatName,
 		uint(playerCatRank),
 		uint(playerCatScore),
 	)
 
-	changeData.PlayerAlive = playerIsAlive
+	hsChange := HSChange{
+		Change:      catChange,
+		PlayerAlive: playerIsAlive,
+	}
 
-	return changeData
+	return &hsChange
+}
+
+func (db *MyDB) apiDataCreateOrUpdate(apiData *APIPlayer) []*CatChange {
+	var apiChanges []*CatChange
+
+	for _, category := range apiData.Bosses {
+		if category.Score > -1 {
+			catChange := db.createOrUpdateCategory(apiData.Name, category.Name, uint(category.Rank), uint(category.Score))
+			if catChange.ScoreChanged || catChange.NewCategory {
+				apiChanges = append(apiChanges, catChange)
+			}
+		}
+	}
+
+	return apiChanges
 }
 
 func (db *MyDB) getNextApiCallName() string {

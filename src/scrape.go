@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math"
 	"regexp"
 	"strconv"
@@ -116,7 +115,8 @@ func scrapePage(bossName string, pageNum int) (*HighscorePage, error) {
 	})
 
 	c.OnHTML("tr.personal-hiscores__row", func(e *colly.HTMLElement) {
-		playerLine := parseLine(e)
+		var playerLine *HighscoreLine
+		playerLine, err = parseLine(e)
 		playerLine.Category = bossName
 		highscorePage.Lines = append(highscorePage.Lines, playerLine)
 	})
@@ -139,11 +139,15 @@ func scrapePage(bossName string, pageNum int) (*HighscorePage, error) {
 
 }
 
-func parseLine(e *colly.HTMLElement) *HighscoreLine {
+func parseLine(e *colly.HTMLElement) (*HighscoreLine, error) {
 
 	var alive bool
 	var rank int
 	var score int
+
+	l := HighscoreLine{}
+
+	var err error
 
 	name := e.ChildText("td.left")
 
@@ -155,50 +159,50 @@ func parseLine(e *colly.HTMLElement) *HighscoreLine {
 
 	e.ForEach("td.right", func(i int, h *colly.HTMLElement) {
 		if i == 0 {
-			var err error
-
 			stringBase := h.Text
 			stringTrimmed := strings.Trim(stringBase, "\n")
 
 			rank, err = strconv.Atoi(stringTrimmed)
-			if err != nil {
-				log.Fatal(err)
-			}
 		}
 		if i == 1 {
-			var err error
-
 			stringBase := h.Text
 			stringNoComma := strings.Replace(stringBase, ",", "", -1)
 			stringTrimmed := strings.Trim(stringNoComma, "\n")
 
 			score, err = strconv.Atoi(stringTrimmed)
-			if err != nil {
-				log.Fatal(err)
-			}
 		}
 	})
 
-	l := HighscoreLine{
-		Name:  name,
-		Rank:  rank,
-		Score: score,
-		Alive: alive}
+	l.Name = name
+	l.Rank = rank
+	l.Score = score
+	l.Alive = alive
 
-	return &l
+	return &l, err
 
 }
 
-func scrapeIsPlayerAlive(playerName string, bossName string, rank int) (bool, error) {
+func scrapeIsPlayerAlive(apiData *APIPlayer) (bool, error) {
 	var err error
 	var alive bool
 
-	fmt.Println(rank, float64(rank))
+	var catRank int
+	var catName string
 
-	pageToScrape := int(math.Ceil(float64(rank) / 25))
+	playerName := apiData.Name
+
+	for _, category := range apiData.Bosses {
+		if category.Score > -1 {
+			catRank = category.Rank
+			catName = category.Name
+			break
+		}
+	}
+
+	pageToScrape := int(math.Ceil(float64(catRank) / 25))
 	fmt.Println("page to scrape: ", pageToScrape)
 
-	highscorePage, err := scrapePage(bossName, pageToScrape)
+	highscorePage, err := scrapePage(catName, pageToScrape)
 
 	if err != nil {
 		return alive, err

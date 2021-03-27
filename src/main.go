@@ -25,9 +25,7 @@ func main() {
 		timeSinceLastApiCall := time.Since(runner.LastApiCallTime).Seconds()
 
 		if timeSinceLastScrape >= config.SecondsBetweenScrapes {
-			if true == false {
-				runner.performScrape()
-			}
+			runner.performScrape()
 		}
 
 		if timeSinceLastApiCall >= config.SecondsBetweenApiCalls {
