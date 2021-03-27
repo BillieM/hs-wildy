@@ -59,11 +59,15 @@ func dbConnect() *MyDB {
 	HS_WILDY := os.Getenv("HSWILDY")
 
 	if HS_WILDY == "LIVE" {
-		fmt.Println("connecting to live postgresql db")
+		msg := "connecting to live postgresql db"
+		fmt.Println(msg)
+		writeLineToOtherLog(msg)
 		dsn := "host=localhost user=billie password=funorb4299 dbname=hswildy"
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	} else {
-		fmt.Println("connecting to dev sqlite db")
+		msg := "connecting to dev sqlite db"
+		fmt.Println(msg)
+		writeLineToOtherLog(msg)
 		db, err = gorm.Open(sqlite.Open("../app.db"), &gorm.Config{})
 	}
 

@@ -50,6 +50,10 @@ func writeLineToLog(logName string, msg string) {
 	}
 }
 
+func writeLineToOtherLog(msg string) {
+	writeLineToLog("other", msg)
+}
+
 func writeLineToRequestLog(msg string) {
 	writeLineToLog("requests", msg)
 }
