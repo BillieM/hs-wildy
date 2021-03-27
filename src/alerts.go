@@ -39,25 +39,25 @@ func sendErrorAlert(msg string) {
 }
 
 func writeLineToSuccessLog(msg string) {
-	f, err := os.OpenFile("updates.log",
+	f, err := os.OpenFile("../updates.log",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
 	}
 	defer f.Close()
-	if _, err := f.WriteString(msg + "\n"); err != nil {
+	if _, err := f.WriteString(fmt.Sprintf("[%s] %s\n", time.Now().Format("02/01/2006 15:04:05"), msg)); err != nil {
 		log.Println(err)
 	}
 }
 
 func writeLineToErrorLog(msg string) {
-	f, err := os.OpenFile("errors.log",
+	f, err := os.OpenFile("../errors.log",
 		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
 	}
 	defer f.Close()
-	if _, err := f.WriteString(msg + "\n"); err != nil {
+	if _, err := f.WriteString(fmt.Sprintf("[%s] %s\n", time.Now().Format("02/01/2006 15:04:05"), msg)); err != nil {
 		log.Println(err)
 	}
 }
