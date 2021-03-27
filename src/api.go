@@ -48,6 +48,7 @@ func callAPI(playerName string) (*APIPlayer, error) {
 
 	if resp.StatusCode == 404 {
 		p.PlayerGone = true
+		return &p, nil
 	}
 
 	defer resp.Body.Close()
