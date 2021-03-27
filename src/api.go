@@ -45,6 +45,9 @@ func callAPI(playerName string) (*APIPlayer, error) {
 		return &p, err
 	}
 
+	fmt.Println(resp)
+	fmt.Println(resp.StatusCode)
+
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -61,10 +64,6 @@ func callAPI(playerName string) (*APIPlayer, error) {
 		lineText := scanner.Text()
 		responseArr = append(responseArr, lineText)
 	}
-
-	fmt.Println(resp)
-	fmt.Println(responseArr)
-	fmt.Println(len(responseArr))
 
 	if len(responseArr) != config.APIProperties {
 		configureConfig()
