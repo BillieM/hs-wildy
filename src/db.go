@@ -141,9 +141,13 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 	newCategory = errors.Is(catDB.Error, gorm.ErrRecordNotFound)
 
 	row := db.Table("categories").Where("name = ? AND player_id = ?", catName, playerID).Select("score", "updated").Row()
+
 	var score uint
 	var updated time.Time
 	row.Scan(&score, &updated)
+
+	fmt.Println(row)
+	fmt.Println(score, playerScore)
 
 	if newCategory {
 		db.createCategory(
@@ -156,6 +160,7 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 
 		if score != playerScore {
 			scoreChanged = true
+			writeLineToOtherLog(fmt.Sprintf("db score: %v, new score: %v, player name: %s, cat name: %s", score, playerScore, playerName, catName))
 		}
 		db.updateCategory(playerName, catName, playerRank, playerScore)
 	}
