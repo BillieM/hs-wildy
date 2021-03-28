@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"time"
 )
@@ -11,7 +12,7 @@ func (changeInfo CatChange) String() string {
 	if changeInfo.NewCategory {
 		return fmt.Sprintf("%s has entered the highscores for %s. their kc is %v.", changeInfo.PlayerName, changeInfo.CategoryName, changeInfo.NewScore)
 	} else if changeInfo.ScoreChanged {
-		timeSinceLastCheck := time.Since(changeInfo.LastUpdate)
+		timeSinceLastCheck := fmtDuration(time.Since(changeInfo.LastUpdate))
 		return fmt.Sprintf("%s's KC has changed for %s. their kc has increased from %v to %v. Time since this boss was last checked: %s",
 			changeInfo.PlayerName, changeInfo.CategoryName, changeInfo.PreviousScore, changeInfo.NewScore, timeSinceLastCheck)
 	} else {
@@ -64,4 +65,19 @@ func writeLineToSuccessLog(msg string) {
 
 func writeLineToErrorLog(msg string) {
 	writeLineToLog("errors", msg)
+}
+
+func fmtDuration(d time.Duration) string {
+	numSeconds := int(d.Seconds())
+	s := numSeconds % 60
+	m := int(math.Floor(float64(numSeconds)/60)) % 60
+	h := math.Floor(float64(numSeconds) / 3600)
+
+	if h > 0 {
+		return fmt.Sprintf("%vh:%vm:%vs", h, m, s)
+	} else if m > 0 {
+		return fmt.Sprintf("%vm:%vs", m, s)
+	} else {
+		return fmt.Sprintf("%vs", s)
+	}
 }
