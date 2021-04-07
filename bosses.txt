@@ -1,0 +1,6 @@
+        "Callisto",
+        "Chaos Elemental",
+        "Chaos Fanatic", 
+        "Crazy Archaeologist",
+        "Vet'ion",
+        "Venenatis"

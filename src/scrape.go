@@ -56,7 +56,7 @@ func scrapeCategoriesInfo(categories []string) (*HighscoreCategoriesInfo, error)
 
 	c.OnHTML("div#contentCategory", func(e *colly.HTMLElement) {
 		e.ForEach("a", func(_ int, h *colly.HTMLElement) {
-			for category := range config.WildernessBosses {
+			for _, category := range config.WildernessBossesArr {
 				if strings.Contains(category, h.Text) {
 					href := h.Attr("href")
 					re := regexp.MustCompile(`table=\s*(\d+)`)

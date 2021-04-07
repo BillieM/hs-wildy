@@ -1,1 +1,1 @@
-{"APIProperties":81,"ScrapeProperties":80,"WildernessBosses":{},"SecondsBetweenScrapes":6,"SecondsBetweenApiCalls":1.25,"NumSkills":23}
+{"APIProperties":81,"ScrapeProperties":80,"WildernessBosses":{"Callisto":16,"Chaos Elemental":20,"Chaos Fanatic":21,"Crazy Archaeologist":24,"Venenatis":51,"Vet'ion":52},"WildernessBossesArr":["Callisto","Chaos Elemental","Chaos Fanatic","Crazy Archaeologist","Vet'ion","Venenatis"],"SecondsBetweenScrapes":6,"SecondsBetweenApiCalls":1.25,"NumSkills":23}

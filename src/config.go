@@ -12,6 +12,7 @@ type Config struct {
 	APIProperties          int
 	ScrapeProperties       int
 	WildernessBosses       map[string]int
+	WildernessBossesArr    []string
 	SecondsBetweenScrapes  float64
 	SecondsBetweenApiCalls float64
 	NumSkills              int
