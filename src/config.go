@@ -16,6 +16,10 @@ type Config struct {
 	SecondsBetweenScrapes  float64
 	SecondsBetweenApiCalls float64
 	NumSkills              int
+	ConsumerKey            string
+	ConsumerSecret         string
+	AccessToken            string
+	AccessSecret           string
 }
 
 func configureConfig() error {

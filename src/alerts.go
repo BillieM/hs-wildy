@@ -6,6 +6,9 @@ import (
 	"math"
 	"os"
 	"time"
+
+	"github.com/dghubble/go-twitter/twitter"
+	"github.com/dghubble/oauth1"
 )
 
 func (changeInfo CatChange) String() string {
@@ -32,6 +35,7 @@ func checkCategoryAlert(changeInfo *CatChange) {
 func sendUpdateAlert(msg string) {
 	fmt.Println(msg)
 	writeLineToSuccessLog(msg)
+	sendTweet(msg)
 }
 
 func sendErrorAlert(msg string) {
@@ -79,5 +83,28 @@ func fmtDuration(d time.Duration) string {
 		return fmt.Sprintf("%vm:%vs", m, s)
 	} else {
 		return fmt.Sprintf("%vs", s)
+	}
+}
+
+func getTwitterClient() *twitter.Client {
+
+	config := readConfig()
+
+	oAuthCfg := oauth1.NewConfig(config.ConsumerKey, config.ConsumerSecret)
+	oAuthTkn := oauth1.NewToken(config.AccessToken, config.AccessSecret)
+	httpClient := oAuthCfg.Client(oauth1.NoContext, oAuthTkn)
+	client := twitter.NewClient(httpClient)
+
+	return client
+}
+
+func sendTweet(msg string) {
+
+	client := getTwitterClient()
+
+	_, _, err := client.Statuses.Update(msg, nil)
+
+	if err != nil {
+		sendErrorAlert(err.Error())
 	}
 }
