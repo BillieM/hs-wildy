@@ -684,3 +684,16 @@
 [11/04/2021 13:03:42] scrape failed -> Get "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=51&page=1": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
 [11/04/2021 13:04:09] scrape failed -> context deadline exceeded (Client.Timeout or context cancellation while reading body)
 [11/04/2021 16:11:26] scrape failed -> Get "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=21&page=1": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+[11/04/2021 20:06:04] Get "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws?player=IronBaystate": dial tcp: lookup secure.runescape.com on 192.168.1.1:53: read udp 192.168.1.112:46905->192.168.1.1:53: i/o timeout
+[11/04/2021 20:30:12] Get "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws?player=Teffva": dial tcp: lookup secure.runescape.com on 192.168.1.1:53: read udp 192.168.1.112:41428->192.168.1.1:53: i/o timeout
+[12/04/2021 07:06:49] scrape failed -> Get "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=16&page=2": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+[12/04/2021 16:27:32] twitter: 215 Bad Authentication data.
+[12/04/2021 17:19:30] twitter: 215 Bad Authentication data.
+[12/04/2021 17:45:30] twitter: 215 Bad Authentication data.
+[12/04/2021 18:15:51] twitter: 215 Bad Authentication data.
+[12/04/2021 19:07:35] scrape failed -> Get "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=24&page=21": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+[13/04/2021 02:12:06] scrape failed -> Get "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=24&page=1": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+[13/04/2021 08:27:07] scrape failed -> Get "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=21&page=2": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+[13/04/2021 11:13:15] scrape failed -> Get "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=51&page=1": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+[13/04/2021 20:23:26] scrape failed -> Get "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=42&page=1": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+[13/04/2021 20:55:10] scrape failed -> Get "https://secure.runescape.com/m=hiscore_oldschool_hardcore_ironman/overall?category_type=1&table=16&page=1": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
