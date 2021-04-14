@@ -43,6 +43,8 @@ type CatChange struct {
 	CategoryName  string
 	PreviousScore uint
 	NewScore      int
+	PreviousRank  uint
+	NewRank       int
 	LastUpdate    time.Time
 }
 
@@ -140,11 +142,12 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 
 	newCategory = errors.Is(catDB.Error, gorm.ErrRecordNotFound)
 
-	row := db.Table("categories").Where("name = ? AND player_id = ?", catName, playerID).Select("score", "updated").Row()
+	row := db.Table("categories").Where("name = ? AND player_id = ?", catName, playerID).Select("score", "rank", "updated").Row()
 
 	var score uint
+	var rank uint
 	var updated time.Time
-	row.Scan(&score, &updated)
+	row.Scan(&score, &rank, &updated)
 
 	if newCategory {
 		db.createCategory(
@@ -169,6 +172,8 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 	changeData.CategoryName = catName
 	changeData.PreviousScore = score
 	changeData.NewScore = int(playerScore)
+	changeData.PreviousRank = rank
+	changeData.NewRank = int(playerRank)
 	changeData.LastUpdate = updated
 
 	return &changeData
