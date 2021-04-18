@@ -1,37 +1,33 @@
 package main
 
-import (
-	"fmt"
-	"os"
-	"time"
-)
-
 func main() {
 
-	config := readConfig()
+	// config := readConfig()
 
-	db := dbConnect()
+	// db := dbConnect()
 
-	runner, err := configureRunner(db)
+	// runner, err := configureRunner(db)
 
-	if err != nil {
-		sendErrorAlert(fmt.Sprintf("runner configuration failed -> %v", err))
-		os.Exit(0)
-	}
+	// if err != nil {
+	// 	sendErrorAlert(fmt.Sprintf("runner configuration failed -> %v", err))
+	// 	os.Exit(0)
+	// }
 
-	for {
+	// for {
 
-		timeSinceLastScrape := time.Since(runner.LastScrapeTime).Seconds()
-		timeSinceLastApiCall := time.Since(runner.LastApiCallTime).Seconds()
+	// 	timeSinceLastScrape := time.Since(runner.LastScrapeTime).Seconds()
+	// 	timeSinceLastApiCall := time.Since(runner.LastApiCallTime).Seconds()
 
-		if timeSinceLastScrape >= config.SecondsBetweenScrapes {
-			runner.performScrape()
-		}
+	// 	if timeSinceLastScrape >= config.SecondsBetweenScrapes {
+	// 		runner.performScrape()
+	// 	}
 
-		if timeSinceLastApiCall >= config.SecondsBetweenApiCalls {
-			runner.performApiCall()
-		}
+	// 	if timeSinceLastApiCall >= config.SecondsBetweenApiCalls {
+	// 		runner.performApiCall()
+	// 	}
 
-		time.Sleep(250 * time.Millisecond)
-	}
+	// 	time.Sleep(250 * time.Millisecond)
+	// }
+
+	checkPreviousTweets(getTwitterClient(), "Sooo Hard RN")
 }
