@@ -13,10 +13,6 @@ import (
 	"github.com/dghubble/oauth1"
 )
 
-type UpdateAlert struct {
-	ChangeInfo *CatChange
-}
-
 func (changeInfo CatChange) String() string {
 	if changeInfo.NewCategory {
 		return fmt.Sprintf("%s has entered the highscores for %s (rank %v). Their kc is %v.", changeInfo.PlayerName, changeInfo.CategoryName, changeInfo.NewRank, changeInfo.NewScore)
@@ -106,23 +102,31 @@ func sendTweet(changeInfo *CatChange) {
 
 	client := getTwitterClient()
 
-	prevTweetId, err := checkPreviousTweets(client, changeInfo.PlayerName)
+	prevTweetId, err := checkPreviousTweets(client, *changeInfo)
 
 	if err != nil {
 		sendErrorAlert(err.Error())
 		return
 	}
 
-	fmt.Println(prevTweetId)
+	if prevTweetId != 0 {
+		_, _, err := client.Statuses.Update("@HcWildy "+fmt.Sprint(changeInfo), &twitter.StatusUpdateParams{
+			InReplyToStatusID: prevTweetId,
+		})
+		if err != nil {
+			sendErrorAlert(err.Error())
+		}
 
-	// _, _, err := client.Statuses.Update(msg, nil)
+	} else {
+		_, _, err := client.Statuses.Update(fmt.Sprint(changeInfo), nil)
+		if err != nil {
+			sendErrorAlert(err.Error())
+		}
+	}
 
-	// if err != nil {
-	// 	sendErrorAlert(err.Error())
-	// }
 }
 
-func checkPreviousTweets(client *twitter.Client, playerName string) (int64, error) {
+func checkPreviousTweets(client *twitter.Client, changeInfo CatChange) (int64, error) {
 
 	config := readConfig()
 
@@ -146,12 +150,11 @@ func checkPreviousTweets(client *twitter.Client, playerName string) (int64, erro
 		}
 		minutesSinceTweet := time.Since(tweetTime).Minutes()
 		if minutesSinceTweet < config.MinutesBetweenNewTweets {
-			fmt.Println("reply tweet", minutesSinceTweet)
-			if strings.Contains(tweet.Text, playerName) {
-				fmt.Println(tweet)
+			if strings.Contains(tweet.Text, changeInfo.PlayerName) && strings.Contains(tweet.Text, changeInfo.CategoryName) {
+				return tweet.ID, nil
 			}
 		}
 	}
 
-	return tweets[0].ID, nil
+	return 0, nil
 }
