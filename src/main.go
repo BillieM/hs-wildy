@@ -34,4 +34,20 @@ func main() {
 
 		time.Sleep(250 * time.Millisecond)
 	}
+
+	// prevTweet, err := checkPreviousTweets(getTwitterClient(), CatChange{
+	// 	PlayerName:   "ydanus",
+	// 	CategoryName: "Callisto",
+	// })
+	// if err != nil {
+	// 	sendErrorAlert(err.Error())
+	// }
+	// fmt.Println(prevTweet)
+	// client := getTwitterClient()
+	// _, _, err = client.Statuses.Update("@HcWildy test", &twitter.StatusUpdateParams{
+	// 	InReplyToStatusID: prevTweet,
+	// })
+	// if err != nil {
+	// 	sendErrorAlert(err.Error())
+	// }
 }

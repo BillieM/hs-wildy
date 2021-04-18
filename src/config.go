@@ -9,17 +9,18 @@ import (
 
 // Config struct stores configuration properties for application
 type Config struct {
-	APIProperties          int
-	ScrapeProperties       int
-	WildernessBosses       map[string]int
-	WildernessBossesArr    []string
-	SecondsBetweenScrapes  float64
-	SecondsBetweenApiCalls float64
-	NumSkills              int
-	ConsumerKey            string
-	ConsumerSecret         string
-	AccessToken            string
-	AccessSecret           string
+	APIProperties           int
+	ScrapeProperties        int
+	WildernessBosses        map[string]int
+	WildernessBossesArr     []string
+	SecondsBetweenScrapes   float64
+	SecondsBetweenApiCalls  float64
+	MinutesBetweenNewTweets float64
+	NumSkills               int
+	ConsumerKey             string
+	ConsumerSecret          string
+	AccessToken             string
+	AccessSecret            string
 }
 
 func configureConfig() error {

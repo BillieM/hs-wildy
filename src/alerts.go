@@ -1,10 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/dghubble/go-twitter/twitter"
@@ -23,19 +25,17 @@ func (changeInfo CatChange) String() string {
 	}
 }
 
-func checkCategoryAlert(changeInfo *CatChange) {
+func sendUpdateAlert(changeInfo *CatChange) {
 
-	if changeInfo.NewCategory {
-		sendUpdateAlert(fmt.Sprint(changeInfo))
-	} else if changeInfo.ScoreChanged {
-		sendUpdateAlert(fmt.Sprint(changeInfo))
+	// modify this to take a struct
+	// modify send tweet function too
+
+	if changeInfo.NewCategory || changeInfo.ScoreChanged {
+		fmt.Println(fmt.Sprint(changeInfo))
+		writeLineToSuccessLog(fmt.Sprint(changeInfo))
+		sendTweet(changeInfo)
 	}
-}
 
-func sendUpdateAlert(msg string) {
-	fmt.Println(msg)
-	writeLineToSuccessLog(msg)
-	sendTweet(msg)
 }
 
 func sendErrorAlert(msg string) {
@@ -98,13 +98,63 @@ func getTwitterClient() *twitter.Client {
 	return client
 }
 
-func sendTweet(msg string) {
+func sendTweet(changeInfo *CatChange) {
 
 	client := getTwitterClient()
 
-	_, _, err := client.Statuses.Update(msg, nil)
+	prevTweetId, err := checkPreviousTweets(client, *changeInfo)
 
 	if err != nil {
 		sendErrorAlert(err.Error())
+		return
 	}
+
+	if prevTweetId != 0 {
+		_, _, err := client.Statuses.Update("@HcWildy "+fmt.Sprint(changeInfo), &twitter.StatusUpdateParams{
+			InReplyToStatusID: prevTweetId,
+		})
+		if err != nil {
+			sendErrorAlert(err.Error())
+		}
+
+	} else {
+		_, _, err := client.Statuses.Update(fmt.Sprint(changeInfo), nil)
+		if err != nil {
+			sendErrorAlert(err.Error())
+		}
+	}
+
+}
+
+func checkPreviousTweets(client *twitter.Client, changeInfo CatChange) (int64, error) {
+
+	config := readConfig()
+
+	fmt.Println(config.MinutesBetweenNewTweets)
+
+	uTimelineParams := twitter.UserTimelineParams{
+		ScreenName: "hcwildy",
+	}
+
+	tweets, _, err := client.Timelines.UserTimeline(&uTimelineParams)
+
+	if err != nil {
+		return 0, errors.New("failed to get previous tweets")
+	}
+
+	for _, tweet := range tweets {
+
+		tweetTime, err := time.Parse("Mon Jan 2 15:04:05 -0700 2006", tweet.CreatedAt)
+		if err != nil {
+			return 0, err
+		}
+		minutesSinceTweet := time.Since(tweetTime).Minutes()
+		if minutesSinceTweet < config.MinutesBetweenNewTweets {
+			if strings.Contains(tweet.Text, changeInfo.PlayerName) && strings.Contains(tweet.Text, changeInfo.CategoryName) {
+				return tweet.ID, nil
+			}
+		}
+	}
+
+	return 0, nil
 }
