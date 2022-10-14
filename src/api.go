@@ -3,8 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
-	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -53,13 +52,13 @@ func callAPI(playerName string) (*APIPlayer, error) {
 
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
 		return &p, err
 	}
 
-	bodyS := fmt.Sprintf("%s", body)
+	bodyS := string(body)
 
 	scanner := bufio.NewScanner(strings.NewReader(bodyS))
 
