@@ -83,6 +83,11 @@ func readConfig() *Config {
 
 func writeConfig(config *Config) error {
 
+	config.ConsumerKey = ""
+	config.ConsumerSecret = ""
+	config.AccessToken = ""
+	config.AccessSecret = ""
+
 	jsonData, err := json.Marshal(config)
 
 	if err != nil {
