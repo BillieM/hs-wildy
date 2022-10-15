@@ -54,7 +54,7 @@ jobs:
         hosts: '${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}'
         privateKey: ${{secrets.SSH_KEY}}
         command: |
-          cd ~/home/pi/hs-wildy/
+          cd $HOME/hs-wildy/
           git pull origin master
           cd src
           go build . 
