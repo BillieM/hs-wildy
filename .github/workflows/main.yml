@@ -47,12 +47,12 @@ jobs:
         
     # Run build of the application
     - name: Run build
-      uses: D3rHase/ssh-command-action@v0.2.1
+      uses: garygrossgarten/github-action-ssh@release
       with:
-        HOST: ${{secrets.SSH_HOST}}                         
-        USER: ${{secrets.SSH_USER}}                            
-        PRIVATE_SSH_KEY: ${{secrets.SSH_KEY}}
-        COMMAND: |
+        host: ${{secrets.SSH_HOST}}                         
+        username: ${{secrets.SSH_USER}}                            
+        privateKey: ${{secrets.SSH_KEY}}
+        command: |
           cd $HOME/hs-wildy/
           git pull origin master
           cd src
@@ -71,11 +71,11 @@ jobs:
     
       # Deploy to staging
       - name: Deploy to staging
-        uses: D3rHase/ssh-command-action@v0.2.1
+        uses: garygrossgarten/github-action-ssh@release
         with:
-          HOST: ${{secrets.SSH_HOST}}                         
-          USER: ${{secrets.SSH_USER}}                            
-          PRIVATE_SSH_KEY: ${{secrets.SSH_KEY}}
-          COMMAND: |
+          host: ${{secrets.SSH_HOST}}                         
+          username: ${{secrets.SSH_USER}}                            
+          privateKey: ${{secrets.SSH_KEY}}
+          command: |
               sudo supervisorctl stop hs-wildy-test
               sudo supervisorctl start hs-wildy-test
