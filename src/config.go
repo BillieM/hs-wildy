@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"errors"
 	"log"
 	"os"
 )
@@ -43,6 +43,12 @@ func configureConfig() error {
 	config.APIProperties = highscoreCatsInfo.NumHighscoreCategories + 1
 	config.ScrapeProperties = highscoreCatsInfo.NumHighscoreCategories
 
+	err = getSecrets(config)
+
+	if err != nil {
+		return err
+	}
+
 	err = writeConfig(config)
 
 	if err != nil {
@@ -77,13 +83,18 @@ func readConfig() *Config {
 
 func writeConfig(config *Config) error {
 
+	config.ConsumerKey = ""
+	config.ConsumerSecret = ""
+	config.AccessToken = ""
+	config.AccessSecret = ""
+
 	jsonData, err := json.Marshal(config)
 
 	if err != nil {
 		return err
 	}
 
-	err = ioutil.WriteFile("../config.json", jsonData, 0644)
+	err = os.WriteFile("../config.json", jsonData, 0644)
 
 	if err != nil {
 		return err
@@ -91,4 +102,22 @@ func writeConfig(config *Config) error {
 
 	return nil
 
+}
+
+func getSecrets(config *Config) error {
+	consumerKey, i1 := os.LookupEnv("HCWILDY_CONSUMER_KEY")
+	consumerSecret, i2 := os.LookupEnv("HCWILDY_CONSUMER_SECRET")
+	accessToken, i3 := os.LookupEnv("HCWILDY_ACCESS_TOKEN")
+	accessSecret, i4 := os.LookupEnv("HCWILDY_ACCESS_SECRET")
+
+	if i1 && i2 && i3 && i4 {
+		// all env vars exist
+		config.ConsumerKey = consumerKey
+		config.ConsumerSecret = consumerSecret
+		config.AccessToken = accessToken
+		config.AccessSecret = accessSecret
+		return nil
+	} else {
+		return errors.New("one or more twitter secrets are missing from env vars")
+	}
 }

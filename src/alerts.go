@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -110,7 +109,13 @@ func sendTweet(changeInfo *CatChange) {
 	}
 
 	if prevTweetId != 0 {
-		_, _, err := client.Statuses.Update("@HcWildy "+fmt.Sprint(changeInfo), &twitter.StatusUpdateParams{
+
+		accountName := "@HcWildyTest "
+		if os.Getenv("PRODUCTION") == "TRUE" {
+			accountName = "@HcWildy "
+		}
+
+		_, _, err := client.Statuses.Update(accountName+fmt.Sprint(changeInfo), &twitter.StatusUpdateParams{
 			InReplyToStatusID: prevTweetId,
 		})
 		if err != nil {
@@ -123,14 +128,12 @@ func sendTweet(changeInfo *CatChange) {
 			sendErrorAlert(err.Error())
 		}
 	}
-
+	fmt.Println("no errors")
 }
 
 func checkPreviousTweets(client *twitter.Client, changeInfo CatChange) (int64, error) {
 
 	config := readConfig()
-
-	fmt.Println(config.MinutesBetweenNewTweets)
 
 	uTimelineParams := twitter.UserTimelineParams{
 		ScreenName: "hcwildy",
@@ -139,7 +142,7 @@ func checkPreviousTweets(client *twitter.Client, changeInfo CatChange) (int64, e
 	tweets, _, err := client.Timelines.UserTimeline(&uTimelineParams)
 
 	if err != nil {
-		return 0, errors.New("failed to get previous tweets")
+		return 0, err
 	}
 
 	for _, tweet := range tweets {
