@@ -76,4 +76,6 @@ jobs:
         with:
           hosts: '${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}'
           privateKey: ${{secrets.SSH_KEY}}
-          command: /home/pi/hs-wildy/src/hswildy.sh
+          command: |
+            sudo supervisorctl stop hs-wildy-test
+            sudo supervisorctl start hs-wildy-test
