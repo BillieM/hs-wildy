@@ -58,4 +58,7 @@ jobs:
     - name: Deploy to Docker registry
       run: |
         cd ~/hs-wildy
-        ls
+        git checkout master
+        git pull
+        cd src
+        go build .
