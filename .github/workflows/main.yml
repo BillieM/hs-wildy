@@ -53,6 +53,7 @@ jobs:
         privateKey: ${{secrets.SSH_KEY}}
         command: |
           cd $HOME/hs-wildy/
+          rm app.db
           git pull origin master
           cd src
           /usr/local/go/bin/go build . 
