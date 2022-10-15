@@ -40,6 +40,7 @@ jobs:
       run: |
         go vet ./...
         go list -f {{.Target}} golang.org/x/lint/golint
+        ls $GOPATH/bin
         golint ./...
         
     # Run testing on the code
