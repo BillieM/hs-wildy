@@ -55,7 +55,7 @@ jobs:
           cd $HOME/hs-wildy/
           git pull origin master
           cd src
-          go build . 
+          /usr/local/go build . 
 
   # The "deploy" workflow
   deploy:
