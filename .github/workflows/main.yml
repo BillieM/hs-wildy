@@ -47,12 +47,11 @@ jobs:
         
     # Run build of the application
     - name: Run build
-      uses: appleboy/ssh-action@v0.1.5
+      uses: JimCronqvist/action-ssh@master
       with:
-        host: ${{secrets.SSH_HOST}}
-        key: ${{secrets.SSH_KEY}}
-        username: ${{secrets.SSH_USER}}
-        script: |
+        host: ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}
+        privateKey: ${{secrets.SSH_KEY}}
+        command: |
           cd ~/home/pi/hs-wildy/
           git pull origin master
           cd src
@@ -71,9 +70,8 @@ jobs:
     
       # Deploy to staging
       - name: Deploy to staging
-        uses: appleboy/ssh-action@v0.1.5
+        uses: JimCronqvist/action-ssh@master
         with:
-          host: ${{secrets.SSH_HOST}}
-          key: ${{secrets.SSH_KEY}}
-          username: ${{secrets.SSH_USER}}
-          script: /home/pi/hs-wildy/src/src
+          host: ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}
+          privateKey: ${{secrets.SSH_KEY}}
+          command: /home/pi/hs-wildy/src/src
