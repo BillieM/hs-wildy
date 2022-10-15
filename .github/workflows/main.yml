@@ -34,15 +34,28 @@ jobs:
         go mod tidy
         go get -u golang.org/x/lint/golint
         
-    # Run build of the application
-    - name: Run build
+    # Lint and vet
+    - name: Lint and vet
       run: |
-        cd src
-        go build . 
-    
+        go vet ./...
+        golint ./...
+        
     # Run testing on the code
     - name: Run testing
       run: go test ./...
+        
+    # Run build of the application
+    - name: Run build
+      uses: appleboy/ssh-action@v0.1.4
+      with:
+        host: ${{secrets.SSH_HOST}}
+        key: ${{secrets.SSH_KEY}}
+        username: ${{secrets.SSH_USER}}
+        script: |
+          cd ~/home/pi/hs-wildy/
+          git pull origin master
+          cd src
+          go build . 
 
   # The "deploy" workflow
   deploy:
@@ -52,13 +65,14 @@ jobs:
     
     needs: [build] # Only run this workflow when "build" workflow succeeds
     if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }} # Only run this workflow if it is master branch on push event
+    
     steps:
     
-    # Deploy to staging
-    - name: Deploy to Docker registry
-      run: |
-        cd ~/hs-wildy
-        git checkout master
-        git pull
-        cd src
-        go build .
+      # Deploy to staging
+      - name: Deploy to staging
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{secrets.SSH_HOST}}
+          key: ${{secrets.SSH_KEY}}
+          username: ${{secrets.SSH_USER}}
+          script: /home/pi/hs-wildy/src/src
