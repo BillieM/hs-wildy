@@ -47,7 +47,7 @@ jobs:
         
     # Run build of the application
     - name: Run build
-      uses: appleboy/ssh-action@v0.1.4
+      uses: appleboy/ssh-action@v0.1.5
       with:
         host: ${{secrets.SSH_HOST}}
         key: ${{secrets.SSH_KEY}}
@@ -71,7 +71,7 @@ jobs:
     
       # Deploy to staging
       - name: Deploy to staging
-        uses: appleboy/ssh-action@v0.1.4
+        uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{secrets.SSH_HOST}}
           key: ${{secrets.SSH_KEY}}
