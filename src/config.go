@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 )
@@ -119,7 +118,6 @@ func getSecrets(config *Config) error {
 		config.AccessSecret = accessSecret
 		return nil
 	} else {
-		fmt.Println(config)
 		return errors.New("one or more twitter secrets are missing from env vars")
 	}
 }
