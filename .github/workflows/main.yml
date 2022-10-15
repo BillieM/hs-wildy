@@ -1,14 +1,11 @@
 name: CICD
 
-# Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
 on:
   workflow_dispatch:
   push:
     branches:
     - master
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # The "build" workflow
   build:
@@ -49,15 +46,16 @@ jobs:
         
     # Run build of the application
     - name: Run build
-      uses: JimCronqvist/action-ssh@master
+      uses: garygrossgarten/github-action-ssh@release
       with:
-        hosts: '${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}'
+        host: ${{secrets.SSH_HOST}}                         
+        username: ${{secrets.SSH_USER}}                            
         privateKey: ${{secrets.SSH_KEY}}
         command: |
-          cd ~/home/pi/hs-wildy/
+          cd $HOME/hs-wildy/
           git pull origin master
           cd src
-          go build . 
+          /usr/local/go/bin/go build . 
 
   # The "deploy" workflow
   deploy:
@@ -72,8 +70,11 @@ jobs:
     
       # Deploy to staging
       - name: Deploy to staging
-        uses: JimCronqvist/action-ssh@master
+        uses: garygrossgarten/github-action-ssh@release
         with:
-          hosts: '${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}'
+          host: ${{secrets.SSH_HOST}}                         
+          username: ${{secrets.SSH_USER}}                            
           privateKey: ${{secrets.SSH_KEY}}
-          command: /home/pi/hs-wildy/src/hswildy.sh
+          command: |
+              sudo supervisorctl stop hs-wildy-test
+              sudo supervisorctl start hs-wildy-test
