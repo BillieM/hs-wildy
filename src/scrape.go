@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/v2"
 )
 
 // HighscoreCategory stores information about a particular category on the hiscores, it contains highscore pages
