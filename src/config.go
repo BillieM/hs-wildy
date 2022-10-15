@@ -21,6 +21,7 @@ type Config struct {
 	ConsumerSecret          string
 	AccessToken             string
 	AccessSecret            string
+	AccountName             string
 }
 
 func configureConfig() error {
@@ -42,6 +43,11 @@ func configureConfig() error {
 	config.WildernessBosses = highscoreCatsInfo.CategoryIDs
 	config.APIProperties = highscoreCatsInfo.NumHighscoreCategories + 1
 	config.ScrapeProperties = highscoreCatsInfo.NumHighscoreCategories
+
+	config.AccountName = "HcWildyTest "
+	if os.Getenv("PRODUCTION") == "TRUE" {
+		config.AccountName = "HcWildy "
+	}
 
 	err = getSecrets(config)
 

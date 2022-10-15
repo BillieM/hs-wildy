@@ -99,6 +99,7 @@ func getTwitterClient() *twitter.Client {
 
 func sendTweet(changeInfo *CatChange) {
 
+	config := readConfig()
 	client := getTwitterClient()
 
 	prevTweetId, err := checkPreviousTweets(client, *changeInfo)
@@ -110,12 +111,7 @@ func sendTweet(changeInfo *CatChange) {
 
 	if prevTweetId != 0 {
 
-		accountName := "@HcWildyTest "
-		if os.Getenv("PRODUCTION") == "TRUE" {
-			accountName = "@HcWildy "
-		}
-
-		_, _, err := client.Statuses.Update(accountName+fmt.Sprint(changeInfo), &twitter.StatusUpdateParams{
+		_, _, err := client.Statuses.Update("@"+config.AccountName+fmt.Sprint(changeInfo), &twitter.StatusUpdateParams{
 			InReplyToStatusID: prevTweetId,
 		})
 		if err != nil {
@@ -136,7 +132,7 @@ func checkPreviousTweets(client *twitter.Client, changeInfo CatChange) (int64, e
 	config := readConfig()
 
 	uTimelineParams := twitter.UserTimelineParams{
-		ScreenName: "hcwildy",
+		ScreenName: config.AccountName,
 	}
 
 	tweets, _, err := client.Timelines.UserTimeline(&uTimelineParams)
