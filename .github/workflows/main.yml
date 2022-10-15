@@ -31,6 +31,7 @@ jobs:
     - name: Install dependencies
       run: |
         go version
+        go mod tidy
         go get -u golang.org/x/lint/golint
         
     # Run build of the application
@@ -38,13 +39,6 @@ jobs:
       run: |
         cd src
         go build . 
-      
-    # Run vet & lint on the code
-    - name: Run vet & lint
-      run: |
-        cd src
-        go vet .
-        golint .
     
     # Run testing on the code
     #- name: Run testing
