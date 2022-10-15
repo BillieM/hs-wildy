@@ -12,7 +12,7 @@ jobs:
   # The "build" workflow
   build:
     # The type of runner that the job will run on
-    runs-on: [self-hosted, raspberrypi]
+    runs-on: [self-hosted, staging]
     environment: Staging
     
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -52,7 +52,7 @@ jobs:
   # The "deploy" workflow
   deploy:
     # The type of runner that the job will run on
-    runs-on: [self-hosted, raspberrypi]
+    runs-on: [self-hosted, staging]
     environment: Staging
     
     needs: [build] # Only run this workflow when "build" workflow succeeds
