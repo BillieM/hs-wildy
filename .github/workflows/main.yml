@@ -39,9 +39,9 @@ jobs:
     - name: Lint and vet
       run: |
         go vet ./...
-        go list -f {{.Target}} golang.org/x/lint/golint
-        ls $GOPATH/bin
-        golint ./...
+        # go list -f {{.Target}} golang.org/x/lint/golint
+        # ls $GOPATH/bin
+        # golint ./...
         
     # Run testing on the code
     - name: Run testing
