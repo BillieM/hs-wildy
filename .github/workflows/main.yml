@@ -3,6 +3,7 @@ name: CICD
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
+  workflow_dispatch:
   push:
     branches:
     - master
@@ -34,15 +35,29 @@ jobs:
         go mod tidy
         go get -u golang.org/x/lint/golint
         
+    # Lint and vet
+    - name: Lint and vet
+      run: |
+        go vet ./...
+        # go list -f {{.Target}} golang.org/x/lint/golint
+        # ls $GOPATH/bin
+        # golint ./...
+        
+    # Run testing on the code
+    - name: Run testing
+      run: go test ./...
+        
     # Run build of the application
     - name: Run build
-      run: |
-        cd src
-        go build . 
-    
-    # Run testing on the code
-    #- name: Run testing
-    #  run: cd test && go test -v
+      uses: JimCronqvist/action-ssh@master
+      with:
+        hosts: '${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}'
+        privateKey: ${{secrets.SSH_KEY}}
+        command: |
+          cd ~/home/pi/hs-wildy/
+          git pull origin master
+          cd src
+          go build . 
 
   # The "deploy" workflow
   deploy:
@@ -52,11 +67,13 @@ jobs:
     
     needs: [build] # Only run this workflow when "build" workflow succeeds
     if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }} # Only run this workflow if it is master branch on push event
+    
     steps:
-    - uses: actions/checkout@v2
-
-    # Deploy to Docker registry
-    - name: Deploy to Docker registry
-      run: |
-        cd src
-        ./src
+    
+      # Deploy to staging
+      - name: Deploy to staging
+        uses: JimCronqvist/action-ssh@master
+        with:
+          hosts: '${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}'
+          privateKey: ${{secrets.SSH_KEY}}
+          command: /home/pi/hs-wildy/src/hswildy.sh
