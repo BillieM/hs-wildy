@@ -10,7 +10,7 @@ func main() {
 
 	config := readConfig()
 
-	db := dbConnect()
+	db := dbConnect(config)
 
 	runner, err := configureRunner(db)
 

@@ -22,6 +22,10 @@ type Config struct {
 	AccessToken             string
 	AccessSecret            string
 	AccountName             string
+	DBHost                  string
+	DBName                  string
+	DBUser                  string
+	DBPass                  string
 }
 
 func configureConfig() error {
@@ -44,12 +48,10 @@ func configureConfig() error {
 	config.APIProperties = highscoreCatsInfo.NumHighscoreCategories + 1
 	config.ScrapeProperties = highscoreCatsInfo.NumHighscoreCategories
 
-	config.AccountName = "HcWildyTest "
+	config.AccountName = "HcWildyTest"
 	if os.Getenv("PRODUCTION") == "TRUE" {
-		config.AccountName = "HcWildy "
+		config.AccountName = "HcWildy"
 	}
-
-	err = getSecrets(config)
 
 	if err != nil {
 		return err
@@ -84,6 +86,12 @@ func readConfig() *Config {
 		log.Fatal(err)
 	}
 
+	err = getSecrets(&config)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return &config
 }
 
@@ -93,6 +101,10 @@ func writeConfig(config *Config) error {
 	config.ConsumerSecret = ""
 	config.AccessToken = ""
 	config.AccessSecret = ""
+	config.DBHost = ""
+	config.DBName = ""
+	config.DBUser = ""
+	config.DBPass = ""
 
 	jsonData, err := json.Marshal(config)
 
@@ -122,8 +134,26 @@ func getSecrets(config *Config) error {
 		config.ConsumerSecret = consumerSecret
 		config.AccessToken = accessToken
 		config.AccessSecret = accessSecret
-		return nil
 	} else {
 		return errors.New("one or more twitter secrets are missing from env vars")
 	}
+
+	dbHost, i1 := os.LookupEnv("HCWILDY_DB_HOST")
+	dbName, i2 := os.LookupEnv("HCWILDY_DB_NAME")
+	dbUser, i3 := os.LookupEnv("HCWILDY_DB_USER")
+	dbPass, i4 := os.LookupEnv("HCWILDY_DB_PASS")
+
+	if os.Getenv("HSWILDY") == "LIVE" {
+		if i1 && i2 && i3 && i4 {
+			// all env vars exist
+			config.DBHost = dbHost
+			config.DBName = dbName
+			config.DBUser = dbUser
+			config.DBPass = dbPass
+		} else {
+			return errors.New("database creds missing on production env")
+		}
+	}
+
+	return nil
 }

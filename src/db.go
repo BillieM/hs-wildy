@@ -53,7 +53,7 @@ type HSChange struct {
 	PlayerAlive bool
 }
 
-func dbConnect() *MyDB {
+func dbConnect(config *Config) *MyDB {
 
 	var db *gorm.DB
 	var err error
@@ -64,7 +64,7 @@ func dbConnect() *MyDB {
 		msg := "connecting to live postgresql db"
 		fmt.Println(msg)
 		writeLineToOtherLog(msg)
-		dsn := "host=localhost user=billie password=funorb4299 dbname=hswildy"
+		dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s", config.DBHost, config.DBUser, config.DBPass, config.DBName)
 		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	} else {
 		msg := "connecting to dev sqlite db"
