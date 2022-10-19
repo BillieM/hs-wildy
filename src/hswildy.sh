@@ -1,3 +1,4 @@
 #!/bin/zsh
-
-./src
+echo $HSWILDY_PATH
+eval cd $HSWILDY_PATH/src
+exec ./src
