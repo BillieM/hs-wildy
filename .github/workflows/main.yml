@@ -1,4 +1,4 @@
-name: CICD
+name: Test Build/ Deploy
 
 on:
   workflow_dispatch:
