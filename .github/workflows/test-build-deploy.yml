@@ -53,7 +53,6 @@ jobs:
         privateKey: ${{secrets.SSH_KEY}}
         command: |
           cd $HOME/hs-wildy/
-          rm app.db
           git pull origin master
           cd src
           /usr/local/go/bin/go build . 
@@ -61,7 +60,7 @@ jobs:
   # The "deploy" workflow
   deploy:
     # The type of runner that the job will run on
-    runs-on: [self-hosted, staging]
+    runs-on: [self-hosted]
     environment: Staging
     
     needs: [build] # Only run this workflow when "build" workflow succeeds

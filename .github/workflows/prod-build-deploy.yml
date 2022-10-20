@@ -1,0 +1,51 @@
+name: Test Build/ Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - master
+
+jobs:
+  # The "build" workflow
+  build:
+    # The type of runner that the job will run on
+    runs-on: [self-hosted]
+    environment: Production
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Run build of the application
+    - name: Run build
+      uses: garygrossgarten/github-action-ssh@release
+      with:
+        host: ${{secrets.SSH_HOST}}                         
+        username: ${{secrets.SSH_USER}}                            
+        privateKey: ${{secrets.SSH_KEY}}
+        command: |
+          cd $HOME/hs-wildy/
+          git pull origin master
+          cd src
+          /usr/local/go/bin/go build . 
+
+  # The "deploy" workflow
+  deploy:
+    # The type of runner that the job will run on
+    runs-on: [self-hosted]
+    environment: Production
+    
+    needs: [build] # Only run this workflow when "build" workflow succeeds
+    if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }} # Only run this workflow if it is master branch on push event
+    
+    steps:
+    
+      # Deploy to staging
+      - name: Deploy to staging
+        uses: garygrossgarten/github-action-ssh@release
+        with:
+          host: ${{secrets.SSH_HOST}}                         
+          username: ${{secrets.SSH_USER}}                            
+          privateKey: ${{secrets.SSH_KEY}}
+          command: |
+              sudo supervisorctl stop hs-wildy-test
+              sudo supervisorctl start hs-wildy-test
