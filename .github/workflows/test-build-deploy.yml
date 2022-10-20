@@ -64,7 +64,7 @@ jobs:
     environment: Staging
     
     needs: [build] # Only run this workflow when "build" workflow succeeds
-    if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }} # Only run this workflow if it is master branch on push event
+    if: ${{ github.ref == 'refs/heads/master' }} # Only run this workflow if it is master branch on push event
     
     steps:
     
