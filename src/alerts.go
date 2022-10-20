@@ -32,7 +32,7 @@ func sendUpdateAlert(changeInfo *CatChange) {
 	if changeInfo.NewCategory || changeInfo.ScoreChanged {
 		fmt.Println(fmt.Sprint(changeInfo))
 		writeLineToSuccessLog(fmt.Sprint(changeInfo))
-		// sendTweet(changeInfo)
+		sendTweet(changeInfo)
 	}
 
 }
