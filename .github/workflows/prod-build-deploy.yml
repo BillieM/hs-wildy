@@ -1,4 +1,4 @@
-name: Test Build/ Deploy
+name: Prod Build/ Deploy
 
 on:
   workflow_dispatch:
@@ -15,6 +15,7 @@ jobs:
     
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+    - uses: actions/checkout@v2
     # Run build of the application
     - name: Run build
       uses: garygrossgarten/github-action-ssh@release
@@ -40,7 +41,7 @@ jobs:
     steps:
     
       # Deploy to staging
-      - name: Deploy to staging
+      - name: Deploy to Production
         uses: garygrossgarten/github-action-ssh@release
         with:
           host: ${{secrets.SSH_HOST}}                         
