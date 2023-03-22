@@ -1,2 +1,3 @@
 # hs-wildy
-<3
+
+Source code for the [HCWildy](twitter.com/HCWildy) twitter bot.
