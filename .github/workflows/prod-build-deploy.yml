@@ -2,6 +2,7 @@ name: Prod Build/ Deploy
 
 on:
   workflow_dispatch:
+  push:
     branches:
     - master
 
@@ -9,7 +10,7 @@ jobs:
   # The "build" workflow
   build:
     # The type of runner that the job will run on
-    runs-on: [self-hosted]
+    runs-on: [ubuntu-latest]
     environment: Production
     
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -25,6 +26,7 @@ jobs:
         command: |
           cd $HOME/hs-wildy/
           git pull origin master
+          go mod download
           cd src
           /usr/local/go/bin/go build . 
 
