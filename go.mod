@@ -8,10 +8,12 @@ require (
 	github.com/antchfx/xmlquery v1.3.12 // indirect
 	github.com/dghubble/go-twitter v0.0.0-20220816163853-8a0df96f1e6d
 	github.com/dghubble/oauth1 v0.7.1
+	github.com/g8rswimmer/go-twitter/v2 v2.1.5 // indirect
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
+	go.uber.org/ratelimit v0.3.0 // indirect
 	golang.org/x/crypto v0.0.0-20221012134737-56aed061732a // indirect
 	golang.org/x/net v0.0.0-20221014081412-f15817d10f9b // indirect
 	golang.org/x/text v0.3.8 // indirect

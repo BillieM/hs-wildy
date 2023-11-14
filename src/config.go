@@ -45,8 +45,8 @@ func configureConfig() error {
 	}
 
 	config.WildernessBosses = highscoreCatsInfo.CategoryIDs
-	config.APIProperties = highscoreCatsInfo.NumHighscoreCategories + 1
-	config.ScrapeProperties = highscoreCatsInfo.NumHighscoreCategories
+	config.APIProperties = highscoreCatsInfo.NumHighscoreCategories + 2
+	config.ScrapeProperties = highscoreCatsInfo.NumHighscoreCategories + 1
 
 	config.AccountName = "HcWildyTest"
 	if os.Getenv("PRODUCTION") == "TRUE" {

@@ -59,7 +59,7 @@ func (runner *Runner) processPage(highscorePage *HighscorePage) {
 		hsChange := runner.Database.highscoreLineCreateOrUpdate(line)
 
 		if hsChange.PlayerAlive {
-			sendUpdateAlert(hsChange.Change)
+			sendUpdateAlert(runner.Database, hsChange.Change)
 		}
 	}
 
@@ -117,7 +117,7 @@ func (runner *Runner) processAPICall(apiData *APIPlayer) {
 
 			if isAlive {
 				for _, catChange := range apiChanges {
-					sendUpdateAlert(catChange)
+					sendUpdateAlert(runner.Database, catChange)
 				}
 			}
 		}

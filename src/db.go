@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -33,6 +32,19 @@ type Category struct {
 	Rank     uint
 	Score    uint
 	Updated  time.Time `gorm:"autoUpdateTime"`
+}
+
+// Update struct used to generate model for updates in DB
+type Update struct {
+	ID            uint `gorm:"primaryKey"`
+	CategoryName  string
+	PlayerID      uint
+	Player        Player
+	PreviousScore uint
+	NewScore      int
+	PreviousRank  uint
+	NewRank       int
+	Updated       time.Time `gorm:"autoUpdateTime"`
 }
 
 // ScrapeData struct used to determine whether or not to tweet, and what to tweet
@@ -76,8 +88,10 @@ func dbConnect(config *Config) *MyDB {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	db.AutoMigrate(&Player{})
 	db.AutoMigrate(&Category{})
+	db.AutoMigrate(&Update{})
 
 	myDB := MyDB{
 		db,
@@ -118,6 +132,37 @@ func (db *MyDB) createCategory(playerName string, catName string, rank uint, sco
 	return result
 }
 
+func (db *MyDB) createUpdate(c CatChange) *gorm.DB {
+	playerID := db.getPlayerID(c.PlayerName)
+
+	result := db.Create(&Update{
+		PlayerID:      playerID,
+		CategoryName:  c.CategoryName,
+		PreviousScore: c.PreviousScore,
+		NewScore:      c.NewScore,
+		PreviousRank:  c.PreviousRank,
+		NewRank:       c.NewRank,
+	})
+
+	return result
+}
+
+// returns number of updates in the last 2 minutes
+func (db *MyDB) getCountRecentUpdates() int64 {
+	var count int64
+
+	err := db.Model(&Update{}).
+		Where("updated > ?", time.Now().Add(-time.Minute*2)).
+		Count(&count).
+		Error
+
+	if err != nil {
+		writeLineToErrorLog(fmt.Sprintf("error getting count of recent updates -> %v", err))
+	}
+
+	return count
+}
+
 func (db *MyDB) updateCategory(playerName string, catName string, playerRank uint, playerScore uint) {
 	playerID := db.getPlayerID(playerName)
 
@@ -129,18 +174,22 @@ func (db *MyDB) updateCategory(playerName string, catName string, playerRank uin
 }
 
 func (db *MyDB) createOrUpdateCategory(playerName string, catName string, playerRank uint, playerScore uint) *CatChange {
-
-	var category Category
 	var changeData CatChange
 
-	newCategory := false
 	scoreChanged := false
+	categoryExists := false
 
 	playerID := db.getPlayerID(playerName)
 
-	catDB := db.Table("categories").Where("player_id = ? AND name = ?", playerID, catName).First(&category)
+	err := db.Table("categories").
+		Select("count(*) > 0").
+		Where("player_id = ? AND name = ?", playerID, catName).
+		Find(&categoryExists).
+		Error
 
-	newCategory = errors.Is(catDB.Error, gorm.ErrRecordNotFound)
+	if err != nil {
+		writeLineToErrorLog(fmt.Sprintf("error checking if category exists -> %v", err))
+	}
 
 	row := db.Table("categories").Where("name = ? AND player_id = ?", catName, playerID).Select("score", "rank", "updated").Row()
 
@@ -149,7 +198,7 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 	var updated time.Time
 	row.Scan(&score, &rank, &updated)
 
-	if newCategory {
+	if !categoryExists {
 		db.createCategory(
 			playerName,
 			catName,
@@ -167,7 +216,7 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 	}
 
 	changeData.ScoreChanged = scoreChanged
-	changeData.NewCategory = newCategory
+	changeData.NewCategory = !categoryExists
 	changeData.PlayerName = playerName
 	changeData.CategoryName = catName
 	changeData.PreviousScore = score
@@ -181,8 +230,6 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 
 func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) *HSChange {
 
-	newPlayer := false
-
 	playerName := highscoreLine.Name
 	playerCatRank := highscoreLine.Rank
 	playerCatScore := highscoreLine.Score
@@ -192,18 +239,30 @@ func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) *HSCha
 
 	var player Player
 
-	playerDB := db.First(&player, Player{
+	playerDB := db.Where(&player, Player{
 		Name: playerName,
 	})
 
-	newPlayer = errors.Is(playerDB.Error, gorm.ErrRecordNotFound)
+	var playerExists bool
+	err := db.Model(player).
+		Select("count(*) > 0").
+		Where(&player, Player{
+			Name: playerName,
+		}).
+		Find(&playerExists).
+		Error
 
-	if newPlayer {
+	if err != nil {
+		writeLineToErrorLog(fmt.Sprintf("error checking if player exists -> %v", err))
+	}
+
+	if !playerExists {
 		db.createPlayer(
 			playerName,
 			playerIsAlive,
 		)
 	} else {
+		fmt.Println("player exists", playerName)
 		var ID uint
 		var name string
 		var alive bool

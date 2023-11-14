@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -79,6 +80,12 @@ func callAPI(playerName string) (*APIPlayer, error) {
 		if err != nil {
 			return &p, err
 		}
+
+		if rank == 0 {
+			writeLineToErrorLog(fmt.Sprintf("player %v has rank 0 in %v", playerName, key))
+			continue
+		}
+
 		score, err := strconv.Atoi(bossLineArr[1])
 		if err != nil {
 			return &p, err

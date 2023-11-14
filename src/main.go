@@ -3,7 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
+
+	"go.uber.org/ratelimit"
 )
 
 func main() {
@@ -19,35 +23,33 @@ func main() {
 		os.Exit(0)
 	}
 
-	for {
+	apiRateLimit := ratelimit.New(50, ratelimit.Per(60*time.Second))    // rate limit of 40/min
+	scrapeRateLimit := ratelimit.New(10, ratelimit.Per(60*time.Second)) // rate limit of 5/min
 
-		timeSinceLastScrape := time.Since(runner.LastScrapeTime).Seconds()
-		timeSinceLastApiCall := time.Since(runner.LastApiCallTime).Seconds()
-
-		if timeSinceLastScrape >= config.SecondsBetweenScrapes {
-			runner.performScrape()
-		}
-
-		if timeSinceLastApiCall >= config.SecondsBetweenApiCalls {
-			runner.performApiCall()
-		}
-
-		time.Sleep(250 * time.Millisecond)
+	for i := 0; i < 3; i++ {
+		go apiRunner(runner, apiRateLimit)
 	}
 
-	// prevTweet, err := checkPreviousTweets(getTwitterClient(), CatChange{
-	// 	PlayerName:   "ydanus",
-	// 	CategoryName: "Callisto",
-	// })
-	// if err != nil {
-	// 	sendErrorAlert(err.Error())
-	// }
-	// fmt.Println(prevTweet)
-	// client := getTwitterClient()
-	// _, _, err = client.Statuses.Update("@HcWildy test", &twitter.StatusUpdateParams{
-	// 	InReplyToStatusID: prevTweet,
-	// })
-	// if err != nil {
-	// 	sendErrorAlert(err.Error())
-	// }
+	for i := 0; i < 2; i++ {
+		go scrapeRunner(runner, scrapeRateLimit)
+	}
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
+	fmt.Println("Blocking, press ctrl+c to continue...")
+	<-done // Will block here until user hits ctrl+c
+}
+
+func apiRunner(runner *Runner, rl ratelimit.Limiter) {
+	for {
+		rl.Take()
+		runner.performApiCall()
+	}
+}
+
+func scrapeRunner(runner *Runner, rl ratelimit.Limiter) {
+	for {
+		rl.Take()
+		runner.performScrape()
+	}
 }

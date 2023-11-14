@@ -24,15 +24,20 @@ func (changeInfo CatChange) String() string {
 	}
 }
 
-func sendUpdateAlert(changeInfo *CatChange) {
+func sendUpdateAlert(db *MyDB, changeInfo *CatChange) {
 
-	// modify this to take a struct
-	// modify send tweet function too
+	// create a record of the change in the database
 
 	if changeInfo.NewCategory || changeInfo.ScoreChanged {
 		fmt.Println(fmt.Sprint(changeInfo))
+		db.createUpdate(*changeInfo)
 		writeLineToSuccessLog(fmt.Sprint(changeInfo))
-		sendTweet(changeInfo)
+
+		// numRecentUpdates := db.getCountRecentUpdates()
+
+		// if numRecentUpdates < 5 {
+		// 	sendTweet(changeInfo)
+		// }
 	}
 
 }
