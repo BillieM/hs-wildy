@@ -2,9 +2,9 @@ name: Test Build/ Deploy
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-    - master
+  # push:
+  #   branches:
+  #   - master
 
 jobs:
   # The "build" workflow
