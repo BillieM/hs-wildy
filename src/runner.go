@@ -84,8 +84,6 @@ func (runner *Runner) performApiCall() {
 
 	apiData, err := callAPI(playerName)
 
-	writeLineToOtherLog(fmt.Sprintf("api response -> %v", apiData))
-
 	if err != nil {
 		sendErrorAlert(err.Error())
 	} else {

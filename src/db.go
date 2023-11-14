@@ -166,8 +166,6 @@ func (db *MyDB) getCountRecentUpdates() int64 {
 func (db *MyDB) updateCategory(playerName string, catName string, playerRank uint, playerScore uint) {
 	playerID := db.getPlayerID(playerName)
 
-	writeLineToOtherLog(fmt.Sprintf("updating category %s for player %s", catName, playerName))
-
 	db.Table("categories").Where("player_id = ? AND name = ?", playerID, catName).Updates(Category{
 		Rank:  playerRank,
 		Score: playerScore,
@@ -200,9 +198,6 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 	var updated time.Time
 	row.Scan(&score, &rank, &updated)
 
-	writeLineToOtherLog("category exists: " + fmt.Sprint(categoryExists))
-	writeLineToOtherLog("info" + fmt.Sprintf("score: %v, rank: %v, updated: %v", score, rank, updated))
-
 	if !categoryExists {
 		db.createCategory(
 			playerName,
@@ -214,7 +209,6 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 
 		if score != playerScore {
 			scoreChanged = true
-			writeLineToOtherLog(fmt.Sprintf("db score: %v, new score: %v, player name: %s, cat name: %s", score, playerScore, playerName, catName))
 		}
 
 		db.updateCategory(playerName, catName, playerRank, playerScore)
@@ -295,6 +289,7 @@ func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) *HSCha
 
 func (db *MyDB) apiDataCreateOrUpdate(apiData *APIPlayer) []*CatChange {
 	var apiChanges []*CatChange
+	var nonZeroCats int
 
 	for _, category := range apiData.Bosses {
 		if category.Score > -1 {
@@ -302,10 +297,22 @@ func (db *MyDB) apiDataCreateOrUpdate(apiData *APIPlayer) []*CatChange {
 			if catChange.ScoreChanged || catChange.NewCategory {
 				apiChanges = append(apiChanges, catChange)
 			}
+			nonZeroCats++
 		}
 	}
 
+	if nonZeroCats == 0 {
+		// delete players info from db, probably a name change
+		db.clearPlayer(apiData.Name)
+	}
+
 	return apiChanges
+}
+
+func (db *MyDB) clearPlayer(playerName string) {
+	db.Delete(&Player{}, "name = ?", playerName)
+	db.Delete(&Category{}, "player_id = ?", db.getPlayerID(playerName))
+	db.Delete(&Update{}, "player_id = ?", db.getPlayerID(playerName))
 }
 
 func (db *MyDB) getNextApiCallName() string {
