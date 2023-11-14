@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 )
 
 type Runner struct {
@@ -10,8 +9,6 @@ type Runner struct {
 	CurrentCategoryIndex int
 	CurrentPage          int
 	Database             *MyDB
-	LastApiCallTime      time.Time
-	LastScrapeTime       time.Time
 }
 
 func configureRunner(db *MyDB) (*Runner, error) {
@@ -42,8 +39,6 @@ func (runner *Runner) performScrape() {
 
 	highscorePage, err := scrapePage(bossName, runner.CurrentPage)
 
-	runner.LastScrapeTime = time.Now()
-
 	if err != nil {
 		sendErrorAlert(fmt.Sprintf("scrape failed -> %v", err))
 	} else {
@@ -67,7 +62,7 @@ func (runner *Runner) processPage(highscorePage *HighscorePage) {
 
 func (runner *Runner) postScrapeUpdates(morePages bool) {
 
-	if morePages {
+	if morePages && runner.CurrentPage <= 50 {
 		runner.CurrentPage++
 	} else {
 		runner.CurrentPage = 1
@@ -88,8 +83,6 @@ func (runner *Runner) performApiCall() {
 	writeLineToRequestLog(reqString)
 
 	apiData, err := callAPI(playerName)
-
-	runner.LastApiCallTime = time.Now()
 
 	if err != nil {
 		sendErrorAlert(err.Error())
@@ -113,8 +106,6 @@ func (runner *Runner) processAPICall(apiData *APIPlayer) {
 		if err != nil {
 			sendErrorAlert(err.Error())
 		} else {
-			runner.LastScrapeTime = time.Now()
-
 			if isAlive {
 				for _, catChange := range apiChanges {
 					sendUpdateAlert(runner.Database, catChange)

@@ -166,6 +166,8 @@ func (db *MyDB) getCountRecentUpdates() int64 {
 func (db *MyDB) updateCategory(playerName string, catName string, playerRank uint, playerScore uint) {
 	playerID := db.getPlayerID(playerName)
 
+	writeLineToOtherLog(fmt.Sprintf("updating category %s for player %s", catName, playerName))
+
 	db.Table("categories").Where("player_id = ? AND name = ?", playerID, catName).Updates(Category{
 		Rank:  playerRank,
 		Score: playerScore,
@@ -197,6 +199,9 @@ func (db *MyDB) createOrUpdateCategory(playerName string, catName string, player
 	var rank uint
 	var updated time.Time
 	row.Scan(&score, &rank, &updated)
+
+	writeLineToOtherLog("category exists: " + fmt.Sprint(categoryExists))
+	writeLineToOtherLog("info" + fmt.Sprintf("score: %v, rank: %v, updated: %v", score, rank, updated))
 
 	if !categoryExists {
 		db.createCategory(

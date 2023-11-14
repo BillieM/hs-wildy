@@ -26,6 +26,11 @@ func (changeInfo CatChange) String() string {
 
 func sendUpdateAlert(db *MyDB, changeInfo *CatChange) {
 
+	if changeInfo.NewRank == 0 {
+		writeLineToErrorLog(fmt.Sprintf("player %v has rank 0 in %v", changeInfo.PlayerName, changeInfo.CategoryName))
+		return
+	}
+
 	// create a record of the change in the database
 
 	if changeInfo.NewCategory || changeInfo.ScoreChanged {
