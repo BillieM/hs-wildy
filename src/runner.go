@@ -6,8 +6,8 @@ import (
 
 type Runner struct {
 	Categories           []string
-	CurrentCategoryIndex int
-	CurrentPage          int
+	CurrentCategoryIndex *int
+	CurrentPage          *int
 	Database             *MyDB
 }
 
@@ -21,10 +21,13 @@ func configureRunner(db *MyDB) (*Runner, error) {
 		categories = append(categories, category)
 	}
 
+	catIndex := 0
+	page := 1
+
 	runner := Runner{
 		Categories:           categories,
-		CurrentCategoryIndex: 0,
-		CurrentPage:          1,
+		CurrentCategoryIndex: &catIndex,
+		CurrentPage:          &page,
 		Database:             db,
 	}
 
@@ -35,9 +38,9 @@ func configureRunner(db *MyDB) (*Runner, error) {
 
 func (runner *Runner) performScrape() {
 
-	bossName := runner.Categories[runner.CurrentCategoryIndex]
+	bossName := runner.Categories[*runner.CurrentCategoryIndex]
 
-	highscorePage, err := scrapePage(bossName, runner.CurrentPage)
+	highscorePage, err := scrapePage(bossName, *runner.CurrentPage)
 
 	if err != nil {
 		sendErrorAlert(fmt.Sprintf("scrape failed -> %v", err))
@@ -62,14 +65,14 @@ func (runner *Runner) processPage(highscorePage *HighscorePage) {
 
 func (runner *Runner) postScrapeUpdates(morePages bool) {
 
-	if morePages && runner.CurrentPage <= 50 {
-		runner.CurrentPage++
+	if morePages && *runner.CurrentPage <= 50 {
+		*runner.CurrentPage++
 	} else {
-		runner.CurrentPage = 1
-		if runner.CurrentCategoryIndex >= len(runner.Categories)-1 {
-			runner.CurrentCategoryIndex = 0
+		*runner.CurrentPage = 1
+		if *runner.CurrentCategoryIndex >= len(runner.Categories)-1 {
+			*runner.CurrentCategoryIndex = 0
 		} else {
-			runner.CurrentCategoryIndex++
+			*runner.CurrentCategoryIndex++
 		}
 	}
 }
