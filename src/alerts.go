@@ -1,15 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"math"
+	"net/http"
 	"os"
-	"strings"
 	"time"
 
-	"github.com/dghubble/go-twitter/twitter"
-	"github.com/dghubble/oauth1"
+	"github.com/michimani/gotwi"
+	"github.com/michimani/gotwi/tweet/managetweet"
+	"github.com/michimani/gotwi/tweet/managetweet/types"
 )
 
 func (changeInfo CatChange) String() string {
@@ -95,14 +97,27 @@ func fmtDuration(d time.Duration) string {
 	}
 }
 
-func getTwitterClient() *twitter.Client {
+type authorize struct {
+	Token string
+}
 
-	config := readConfig()
+func (a authorize) Add(req *http.Request) {
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", a.Token))
+}
 
-	oAuthCfg := oauth1.NewConfig(config.ConsumerKey, config.ConsumerSecret)
-	oAuthTkn := oauth1.NewToken(config.AccessToken, config.AccessSecret)
-	httpClient := oAuthCfg.Client(oauth1.NoContext, oAuthTkn)
-	client := twitter.NewClient(httpClient)
+func getTwitterClient(cfg Config) *gotwi.Client {
+
+	nci := &gotwi.NewClientInput{
+		AuthenticationMethod: gotwi.AuthenMethodOAuth1UserContext,
+		OAuthToken:           cfg.AccessToken,
+		OAuthTokenSecret:     cfg.AccessSecret,
+	}
+
+	client, err := gotwi.NewClient(nci)
+
+	if err != nil {
+		writeLineToErrorLog(fmt.Sprintf("error creating twitter client: %v", err))
+	}
 
 	return client
 }
@@ -110,60 +125,51 @@ func getTwitterClient() *twitter.Client {
 func sendTweet(changeInfo *CatChange) {
 
 	config := readConfig()
-	client := getTwitterClient()
+	client := getTwitterClient(*config)
 
-	prevTweetId, err := checkPreviousTweets(client, *changeInfo)
-
-	if err != nil {
-		sendErrorAlert(err.Error())
-		return
-	}
-
-	if prevTweetId != 0 {
-
-		_, _, err := client.Statuses.Update("@"+config.AccountName+fmt.Sprint(changeInfo), &twitter.StatusUpdateParams{
-			InReplyToStatusID: prevTweetId,
-		})
-		if err != nil {
-			sendErrorAlert(err.Error())
-		}
-
-	} else {
-		_, _, err := client.Statuses.Update(fmt.Sprint(changeInfo), nil)
-		if err != nil {
-			sendErrorAlert(err.Error())
-		}
-	}
-	fmt.Println("no errors")
-}
-
-func checkPreviousTweets(client *twitter.Client, changeInfo CatChange) (int64, error) {
-
-	config := readConfig()
-
-	uTimelineParams := twitter.UserTimelineParams{
-		ScreenName: config.AccountName,
-	}
-
-	tweets, _, err := client.Timelines.UserTimeline(&uTimelineParams)
+	resp, err := managetweet.Create(
+		context.Background(),
+		client,
+		&types.CreateInput{
+			Text: gotwi.String(changeInfo.String()),
+		},
+	)
 
 	if err != nil {
-		return 0, err
+		writeLineToErrorLog(fmt.Sprintf("error sending tweet: %v", err))
 	}
 
-	for _, tweet := range tweets {
+	writeLineToSuccessLog(fmt.Sprintf("tweet sent, id: %s", gotwi.StringValue(resp.Data.ID)))
 
-		tweetTime, err := time.Parse("Mon Jan 2 15:04:05 -0700 2006", tweet.CreatedAt)
-		if err != nil {
-			return 0, err
-		}
-		minutesSinceTweet := time.Since(tweetTime).Minutes()
-		if minutesSinceTweet < config.MinutesBetweenNewTweets {
-			if strings.Contains(tweet.Text, changeInfo.PlayerName) && strings.Contains(tweet.Text, changeInfo.CategoryName) {
-				return tweet.ID, nil
-			}
-		}
-	}
-
-	return 0, nil
 }
+
+// func checkPreviousTweets(client *twitter.Client, changeInfo CatChange) (int64, error) {
+
+// 	config := readConfig()
+
+// 	uTimelineParams := twitter.UserTimelineParams{
+// 		ScreenName: config.AccountName,
+// 	}
+
+// 	tweets, _, err := client.Timelines.UserTimeline(&uTimelineParams)
+
+// 	if err != nil {
+// 		return 0, err
+// 	}
+
+// 	for _, tweet := range tweets {
+
+// 		tweetTime, err := time.Parse("Mon Jan 2 15:04:05 -0700 2006", tweet.CreatedAt)
+// 		if err != nil {
+// 			return 0, err
+// 		}
+// 		minutesSinceTweet := time.Since(tweetTime).Minutes()
+// 		if minutesSinceTweet < config.MinutesBetweenNewTweets {
+// 			if strings.Contains(tweet.Text, changeInfo.PlayerName) && strings.Contains(tweet.Text, changeInfo.CategoryName) {
+// 				return tweet.ID, nil
+// 			}
+// 		}
+// 	}
+
+// 	return 0, nil
+// }

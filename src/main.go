@@ -23,7 +23,10 @@ func main() {
 		os.Exit(0)
 	}
 
-	apiRateLimit := ratelimit.New(50, ratelimit.Per(60*time.Second))   // rate limit of 40/min
+	// seed or api will just die on new db
+	runner.performScrape()
+
+	apiRateLimit := ratelimit.New(40, ratelimit.Per(60*time.Second))   // rate limit of 40/min
 	scrapeRateLimit := ratelimit.New(5, ratelimit.Per(60*time.Second)) // rate limit of 5/min
 
 	for i := 0; i < 3; i++ {

@@ -17,15 +17,14 @@ type Config struct {
 	SecondsBetweenApiCalls  float64
 	MinutesBetweenNewTweets float64
 	NumSkills               int
-	ConsumerKey             string
-	ConsumerSecret          string
 	AccessToken             string
 	AccessSecret            string
 	AccountName             string
-	DBHost                  string
-	DBName                  string
-	DBUser                  string
-	DBPass                  string
+
+	DBHost string
+	DBName string
+	DBUser string
+	DBPass string
 }
 
 func configureConfig() error {
@@ -97,8 +96,6 @@ func readConfig() *Config {
 
 func writeConfig(config *Config) error {
 
-	config.ConsumerKey = ""
-	config.ConsumerSecret = ""
 	config.AccessToken = ""
 	config.AccessSecret = ""
 	config.DBHost = ""
@@ -123,20 +120,22 @@ func writeConfig(config *Config) error {
 }
 
 func getSecrets(config *Config) error {
-	consumerKey, i1 := os.LookupEnv("HCWILDY_CONSUMER_KEY")
-	consumerSecret, i2 := os.LookupEnv("HCWILDY_CONSUMER_SECRET")
-	accessToken, i3 := os.LookupEnv("HCWILDY_ACCESS_TOKEN")
-	accessSecret, i4 := os.LookupEnv("HCWILDY_ACCESS_SECRET")
+	accessToken, accessTokenExists := os.LookupEnv("HCWILDY_ACCESS_TOKEN")
+	accessSecret, accessSecretExists := os.LookupEnv("HCWILDY_ACCESS_SECRET")
 
-	if i1 && i2 && i3 && i4 {
-		// all env vars exist
-		config.ConsumerKey = consumerKey
-		config.ConsumerSecret = consumerSecret
-		config.AccessToken = accessToken
-		config.AccessSecret = accessSecret
-	} else {
-		return errors.New("one or more twitter secrets are missing from env vars")
+	if !accessTokenExists || !accessSecretExists {
+		return errors.New("twitter access token or secret missing")
 	}
+
+	_, consumerExists := os.LookupEnv("GOTWI_API_KEY")
+	_, consumerSecretExists := os.LookupEnv("GOTWI_API_KEY_SECRET")
+
+	if !consumerExists || !consumerSecretExists {
+		return errors.New("twitter consumer key or secret missing")
+	}
+
+	config.AccessToken = accessToken
+	config.AccessSecret = accessSecret
 
 	dbHost, i1 := os.LookupEnv("HCWILDY_DB_HOST")
 	dbName, i2 := os.LookupEnv("HCWILDY_DB_NAME")
