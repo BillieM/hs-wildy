@@ -261,7 +261,6 @@ func (db *MyDB) highscoreLineCreateOrUpdate(highscoreLine *HighscoreLine) *HSCha
 			playerIsAlive,
 		)
 	} else {
-		fmt.Println("player exists", playerName)
 		var ID uint
 		var name string
 		var alive bool

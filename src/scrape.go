@@ -110,7 +110,8 @@ func scrapePage(bossName string, pageNum int) (*HighscorePage, error) {
 
 	c.OnHTML("div#contentCategory", func(e *colly.HTMLElement) {
 		numCats := numChildAttrs(e)
-		if numCats != config.ScrapeProperties {
+
+		if numCats+1 != config.ScrapeProperties {
 			err = errors.New("incorrect number of scrape categories")
 			configureConfig()
 		}
@@ -209,6 +210,10 @@ func scrapeIsPlayerAlive(apiData *APIPlayer) (bool, error) {
 
 	if err != nil {
 		return alive, err
+	}
+
+	if len(highscorePage.Lines) == 0 {
+		return alive, errors.New("no lines on page")
 	}
 
 	numCycles := 0

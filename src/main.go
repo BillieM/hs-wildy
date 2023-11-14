@@ -26,16 +26,14 @@ func main() {
 	// seed or api will just die on new db
 	runner.performScrape()
 
-	apiRateLimit := ratelimit.New(40, ratelimit.Per(60*time.Second))   // rate limit of 40/min
-	scrapeRateLimit := ratelimit.New(5, ratelimit.Per(60*time.Second)) // rate limit of 5/min
+	apiRateLimit := ratelimit.New(45, ratelimit.Per(60*time.Second))   // rate limit of 40/min
+	scrapeRateLimit := ratelimit.New(8, ratelimit.Per(60*time.Second)) // rate limit of 5/min
 
 	for i := 0; i < 2; i++ {
 		go apiRunner(runner, apiRateLimit)
 	}
 
-	for i := 0; i < 1; i++ {
-		go scrapeRunner(runner, scrapeRateLimit)
-	}
+	go scrapeRunner(runner, scrapeRateLimit)
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)

@@ -5,7 +5,7 @@ import (
 )
 
 type Runner struct {
-	Categories           []string
+	Categories           *[]string
 	CurrentCategoryIndex *int
 	CurrentPage          *int
 	Database             *MyDB
@@ -25,7 +25,7 @@ func configureRunner(db *MyDB) (*Runner, error) {
 	page := 1
 
 	runner := Runner{
-		Categories:           categories,
+		Categories:           &categories,
 		CurrentCategoryIndex: &catIndex,
 		CurrentPage:          &page,
 		Database:             db,
@@ -38,7 +38,7 @@ func configureRunner(db *MyDB) (*Runner, error) {
 
 func (runner *Runner) performScrape() {
 
-	bossName := runner.Categories[*runner.CurrentCategoryIndex]
+	bossName := (*runner.Categories)[*runner.CurrentCategoryIndex]
 
 	highscorePage, err := scrapePage(bossName, *runner.CurrentPage)
 
@@ -69,7 +69,7 @@ func (runner *Runner) postScrapeUpdates(morePages bool) {
 		*runner.CurrentPage++
 	} else {
 		*runner.CurrentPage = 1
-		if *runner.CurrentCategoryIndex >= len(runner.Categories)-1 {
+		if *runner.CurrentCategoryIndex >= len(*runner.Categories)-1 {
 			*runner.CurrentCategoryIndex = 0
 		} else {
 			*runner.CurrentCategoryIndex++
@@ -113,6 +113,8 @@ func (runner *Runner) processAPICall(apiData *APIPlayer) {
 				for _, catChange := range apiChanges {
 					sendUpdateAlert(runner.Database, catChange)
 				}
+			} else {
+				runner.Database.playerDied(apiData.Name)
 			}
 		}
 	}
