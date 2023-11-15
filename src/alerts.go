@@ -40,11 +40,11 @@ func sendUpdateAlert(db *MyDB, changeInfo *CatChange) {
 		db.createUpdate(*changeInfo)
 		writeLineToSuccessLog(fmt.Sprint(changeInfo))
 
-		// numRecentUpdates := db.getCountRecentUpdates()
+		numRecentUpdates := db.getCountRecentUpdates()
 
-		// if numRecentUpdates < 5 {
-		// 	sendTweet(changeInfo)
-		// }
+		if numRecentUpdates < 5 {
+			sendTweet(changeInfo)
+		}
 	}
 
 }
