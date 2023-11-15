@@ -102,20 +102,22 @@ func (runner *Runner) processAPICall(apiData *APIPlayer) {
 
 	apiChanges := runner.Database.apiDataCreateOrUpdate(apiData)
 
-	if len(apiChanges) > 0 {
+	_ = apiChanges
 
-		isAlive, err := scrapeIsPlayerAlive(apiData)
+	// if len(apiChanges) > 0 {
 
-		if err != nil {
-			sendErrorAlert(err.Error())
-		} else {
-			if isAlive {
-				for _, catChange := range apiChanges {
-					sendUpdateAlert(runner.Database, catChange)
-				}
-			} else {
-				runner.Database.playerDied(apiData.Name)
-			}
-		}
-	}
+	// 	isAlive, err := scrapeIsPlayerAlive(apiData)
+
+	// 	if err != nil {
+	// 		sendErrorAlert(err.Error())
+	// 	} else {
+	// 		if isAlive {
+	// 			for _, catChange := range apiChanges {
+	// 				sendUpdateAlert(runner.Database, catChange)
+	// 			}
+	// 		} else {
+	// 			runner.Database.playerDied(apiData.Name)
+	// 		}
+	// 	}
+	// }
 }

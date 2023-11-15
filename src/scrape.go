@@ -213,7 +213,7 @@ func scrapeIsPlayerAlive(apiData *APIPlayer) (bool, error) {
 	}
 
 	if len(highscorePage.Lines) == 0 {
-		return alive, errors.New("no lines on page")
+		return alive, errors.New(fmt.Sprintf("no lines on page, player name: %s on category: %s page %v", playerName, catName, pageToScrape))
 	}
 
 	numCycles := 0
