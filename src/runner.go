@@ -65,7 +65,7 @@ func (runner *Runner) processPage(highscorePage *HighscorePage) {
 
 func (runner *Runner) postScrapeUpdates(morePages bool) {
 
-	if morePages && *runner.CurrentPage <= 50 {
+	if morePages && *runner.CurrentPage < 40 {
 		*runner.CurrentPage++
 	} else {
 		*runner.CurrentPage = 1
