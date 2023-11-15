@@ -140,6 +140,10 @@ func scrapePage(bossName string, pageNum int) (*HighscorePage, error) {
 
 	c.Visit(url)
 
+	if len(highscorePage.Lines) == 0 {
+		return &highscorePage, fmt.Errorf("no lines on page, category %s, page %v", bossName, pageNum)
+	}
+
 	return &highscorePage, err
 
 }
@@ -210,10 +214,6 @@ func scrapeIsPlayerAlive(apiData *APIPlayer) (bool, error) {
 
 	if err != nil {
 		return alive, err
-	}
-
-	if len(highscorePage.Lines) == 0 {
-		return alive, errors.New(fmt.Sprintf("no lines on page, player name: %s on category: %s page %v", playerName, catName, pageToScrape))
 	}
 
 	numCycles := 0
