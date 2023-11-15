@@ -27,7 +27,7 @@ func main() {
 	runner.performScrape()
 
 	apiRateLimit := ratelimit.New(45, ratelimit.Per(60*time.Second))   // rate limit of 40/min
-	scrapeRateLimit := ratelimit.New(8, ratelimit.Per(60*time.Second)) // rate limit of 5/min
+	scrapeRateLimit := ratelimit.New(6, ratelimit.Per(60*time.Second)) // rate limit of 5/min
 
 	for i := 0; i < 2; i++ {
 		go apiRunner(runner, apiRateLimit)
