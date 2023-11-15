@@ -33,7 +33,7 @@ jobs:
   # The "deploy" workflow
   deploy:
     # The type of runner that the job will run on
-    runs-on: [self-hosted]
+    runs-on: [ubuntu-latest]
     environment: Production
     
     needs: [build] # Only run this workflow when "build" workflow succeeds
